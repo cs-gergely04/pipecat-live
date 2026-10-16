@@ -1,0 +1,7 @@
+configuration:
+  runner_port:
+    name: Port runnera
+    description: Port TCP uzywany przez web UI Pipecat i runner SmallWebRTC.
+  log_level:
+    name: Poziom logow
+    description: Poziom logowania aplikacji.
