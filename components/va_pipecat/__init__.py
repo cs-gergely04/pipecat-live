@@ -10,7 +10,7 @@ from esphome.const import (
     CONF_VOLUME,
 )
 
-CODEOWNERS = ["@kyvaith"]
+CODEOWNERS = ["@cs-gergely04"]
 DEPENDENCIES = ["api", "network", "microphone", "speaker", "psram"]
 
 CONF_MICROPHONE = "microphone"

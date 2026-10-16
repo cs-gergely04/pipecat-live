@@ -46,7 +46,7 @@ def _matches_pipecat_addon(addon: dict[str, Any]) -> bool:
         slug.endswith(ADDON_SLUG_SUFFIX)
         or name == ADDON_NAME.lower()
         or ADDON_IMAGE_NAME in image
-        or "pipecat-homeassistant" in repository
+        or "pipecat-gemini" in repository
     )
 
 

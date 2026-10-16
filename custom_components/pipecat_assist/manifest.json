@@ -2,10 +2,10 @@
   "domain": "pipecat_assist",
   "name": "Pipecat Assist",
   "version": "0.1.77",
-  "codeowners": ["@kyvaith"],
+  "codeowners": ["@cs-gergely04"],
   "config_flow": true,
   "dependencies": ["ai_task", "conversation", "frontend", "lovelace", "stt", "tts"],
-  "documentation": "https://github.com/kyvaith/pipecat-homeassistant",
+  "documentation": "https://github.com/cs-gergely04/pipecat-gemini",
   "integration_type": "service",
   "iot_class": "local_push",
   "requirements": []

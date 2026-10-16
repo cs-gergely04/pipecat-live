@@ -27,7 +27,7 @@ dynamic native API actions in ESPHome; do not publish the URL as a text entity.
 
 ```yaml
 external_components:
-  - source: github://kyvaith/pipecat-homeassistant@dev
+  - source: github://cs-gergely04/pipecat-gemini@main
     components:
       - va_pipecat
 
