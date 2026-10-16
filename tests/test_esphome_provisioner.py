@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 import httpx
 
-ADDON_ROOT = Path(__file__).resolve().parents[1] / "addons" / "pipecat_assist"
+ADDON_ROOT = Path(__file__).resolve().parents[1] / "addons" / "pipecat_live"
 if ADDON_ROOT.is_dir():
     sys.path.insert(0, str(ADDON_ROOT))
 

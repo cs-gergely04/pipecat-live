@@ -81,7 +81,7 @@ const ASSISTANT_CARD_LABELS = {
   waitingForMicrophone: "Waiting for microphone permission",
   microphoneUnavailable: "Microphone access is not available from this browser context.",
   microphoneBlocked: "Microphone access is blocked. Allow microphone access and retry.",
-  connectedDetail: "Connected. Speak to Pipecat Assist.",
+  connectedDetail: "Connected. Speak to Pipecat Live.",
   connectingAudio: "Connecting audio",
   setupNeeded: "Setup needed",
 };
@@ -1660,14 +1660,14 @@ function App() {
         <div className="brand">
           <img src="assets/logo.svg" alt="" />
           <div>
-            <h1>Pipecat Assist</h1>
+            <h1>Pipecat Live</h1>
             <span className={activeValidation.ok ? "state ok" : "state error"}>
               {activeValidation.ok ? t("ready") : t("setup needed")}
             </span>
           </div>
         </div>
 
-        <nav className="tabs" aria-label="Pipecat Assist">
+        <nav className="tabs" aria-label="Pipecat Live">
           {[
             ["assistant", t("Assistant"), Bot],
             ["pipelines", t("Pipelines"), Workflow],
@@ -3536,7 +3536,7 @@ function IntegrationSettings({
           </Button>
         </div>
         <div className="empty-state wide">
-          This add-on uses its own generated secret URL and Home Assistant Supervisor authentication. Pipecat Assist only needs the detected HTTP MCP endpoint.
+          This add-on uses its own generated secret URL and Home Assistant Supervisor authentication. Pipecat Live only needs the detected HTTP MCP endpoint.
         </div>
       </SettingsSection>
     );
@@ -3554,7 +3554,7 @@ function IntegrationSettings({
           </Button>
         </div>
         <div className="empty-state wide">
-          Enable multiple MCP integrations to expose all of their tools to Pipecat Assist. Home Assistant MCP keeps original tool names; additional servers are prefixed automatically.
+          Enable multiple MCP integrations to expose all of their tools to Pipecat Live. Home Assistant MCP keeps original tool names; additional servers are prefixed automatically.
         </div>
       </SettingsSection>
     );
@@ -4972,7 +4972,7 @@ function VoiceTest({ config, flow }) {
     <div className="assistant-card-test" style={{ "--assistant-card-accent": ASSISTANT_CARD_ACCENT_HEX }}>
       <div className="assistant-card-head">
         <div className="assistant-card-title">
-          <h3>Pipecat Assist</h3>
+          <h3>Pipecat Live</h3>
           <span className={`assistant-card-status ${statusClass}`}>{stateLabel}</span>
         </div>
         <div className="assistant-card-actions">

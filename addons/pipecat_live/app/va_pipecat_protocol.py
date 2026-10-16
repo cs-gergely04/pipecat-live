@@ -1,4 +1,4 @@
-"""Versioned wire protocol shared by Pipecat Assist and ESPHome satellites."""
+"""Versioned wire protocol shared by Pipecat Live and ESPHome satellites."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Pipecat Assist custom integration."""
+"""Pipecat Live custom integration."""
 
 from __future__ import annotations
 
@@ -15,22 +15,23 @@ PLATFORMS = [Platform.CONVERSATION, Platform.STT, Platform.TTS]
 if hasattr(Platform, "AI_TASK"):
     PLATFORMS.append(Platform.AI_TASK)
 CARD_RESOURCES = [
-    {"path": "/pipecat_assist/pipecat-assist-card.js", "file": "pipecat-assist-card.js"},
-    {"path": "/pipecat_assist/pipecat-orb-card.js", "file": "pipecat-orb-card.js"},
-    {"path": "/pipecat_assist/pipecat-humane-card.js", "file": "pipecat-humane-card.js"},
+    {"path": "/pipecat_live/pipecat-live-card.js", "file": "pipecat-live-card.js"},
+    {"path": "/pipecat_live/pipecat-orb-card.js", "file": "pipecat-orb-card.js"},
+    {"path": "/pipecat_live/pipecat-humane-card.js", "file": "pipecat-humane-card.js"},
+    {"path": "/pipecat_live/pipecat-wave-card.js", "file": "pipecat-wave-card.js"},
 ]
 CARD_MODULE_URLS = [f"{item['path']}?v={VERSION}" for item in CARD_RESOURCES]
 
 
 def _is_pipecat_card_resource_url(url: str) -> bool:
-    """Return true for old or current Pipecat Assist Lovelace card resources."""
+    """Return true for old or current Pipecat Live Lovelace card resources."""
 
     path = url.split("?")[0]
-    return any(path == item["path"] or path.endswith(item["file"]) for item in CARD_RESOURCES) or "pipecat" in path
+    return any(path == item["path"] or path.endswith(item["file"]) for item in CARD_RESOURCES) or "pipecat_live" in path
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Pipecat Assist from a config entry."""
+    """Set up Pipecat Live from a config entry."""
 
     await _async_register_static_path(hass)
     register_proxy_views(hass)
@@ -41,7 +42,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload Pipecat Assist."""
+    """Unload Pipecat Live."""
 
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
@@ -114,7 +115,7 @@ async def _async_register_static_path(hass: HomeAssistant) -> None:
     """Expose Lovelace card assets from the integration."""
 
     www_path = Path(__file__).parent / "www"
-    route = "/pipecat_assist"
+    route = "/pipecat_live"
     try:
         from homeassistant.components.http import StaticPathConfig
     except ImportError:

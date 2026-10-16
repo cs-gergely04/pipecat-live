@@ -249,7 +249,7 @@ class PipecatHumaneCard extends HTMLElement {
 
   async loadAddonConfig() {
     const path = this.proxyMode()
-      ? `/api/pipecat_assist/config${this.entryQuery()}`
+      ? `/api/pipecat_live/config${this.entryQuery()}`
       : "/api/assist/config";
     const res = await fetch(this.apiUrl(path), { headers: this.authHeaders() });
     if (!res.ok) throw new Error(`Config failed HTTP ${res.status}`);
@@ -462,7 +462,7 @@ class PipecatHumaneCard extends HTMLElement {
       await this.waitForIce(peer);
 
       const offerPath = this.proxyMode()
-        ? `/api/pipecat_assist/offer${this.entryQuery()}`
+        ? `/api/pipecat_live/offer${this.entryQuery()}`
         : addonConfig.runner_offer_path || "api/offer";
 
       const requestData = {
@@ -788,14 +788,19 @@ class PipecatHumaneCard extends HTMLElement {
   }
 }
 
-customElements.define("pipecat-humane-card", PipecatHumaneCard);
+if (!customElements.get("pipecat-live-humane-card")) {
+  customElements.define("pipecat-live-humane-card", PipecatHumaneCard);
+}
+if (!customElements.get("pipecat-humane-card")) {
+  customElements.define("pipecat-humane-card", PipecatHumaneCard);
+}
 
 window.customCards = Array.isArray(window.customCards) ? window.customCards : [];
-if (!window.customCards.some((c) => c.type === "pipecat-humane-card")) {
+if (!window.customCards.some((c) => c.type === "pipecat-live-humane-card")) {
   window.customCards.push({
-    type: "pipecat-humane-card",
-    name: "Pipecat Humane Card",
-    description: "A warm, simplistic conversational text card for Pipecat Assist.",
+    type: "pipecat-live-humane-card",
+    name: "Pipecat Live Humane Card",
+    description: "A warm, simplistic conversational text card for Pipecat Live.",
     preview: true,
   });
 }

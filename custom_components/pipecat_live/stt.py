@@ -1,4 +1,4 @@
-"""Speech-to-text entity for Pipecat Assist."""
+"""Speech-to-text entity for Pipecat Live."""
 
 from __future__ import annotations
 
@@ -174,16 +174,16 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the Pipecat Assist STT entity."""
+    """Set up the Pipecat Live STT entity."""
 
-    async_add_entities([PipecatAssistSpeechToTextEntity(hass, entry)])
+    async_add_entities([PipecatLiveSpeechToTextEntity(hass, entry)])
 
 
-class PipecatAssistSpeechToTextEntity(stt.SpeechToTextEntity):
-    """Speech-to-text bridge backed by the Pipecat Assist add-on."""
+class PipecatLiveSpeechToTextEntity(stt.SpeechToTextEntity):
+    """Speech-to-text bridge backed by the Pipecat Live add-on."""
 
     _attr_has_entity_name = True
-    _attr_name = "Pipecat Assist"
+    _attr_name = "Pipecat Live"
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.hass = hass
@@ -259,11 +259,11 @@ class PipecatAssistSpeechToTextEntity(stt.SpeechToTextEntity):
                 if response.status >= 400:
                     try:
                         data = await response.json()
-                        detail = data.get("detail", "Pipecat Assist STT failed.")
+                        detail = data.get("detail", "Pipecat Live STT failed.")
                     except (aiohttp.ClientError, ValueError):
                         detail = await response.text()
                     return stt.SpeechResult(
-                        text=detail or "Pipecat Assist STT failed.",
+                        text=detail or "Pipecat Live STT failed.",
                         result=stt.SpeechResultState.ERROR,
                     )
                 data = await response.json()
@@ -339,7 +339,7 @@ class PipecatAssistSpeechToTextEntity(stt.SpeechToTextEntity):
                                 )
                             if data.get("type") == "error":
                                 return stt.SpeechResult(
-                                    text=data.get("detail") or "Pipecat Assist STT failed.",
+                                    text=data.get("detail") or "Pipecat Live STT failed.",
                                     result=stt.SpeechResultState.ERROR,
                                 )
                         elif message.type in {

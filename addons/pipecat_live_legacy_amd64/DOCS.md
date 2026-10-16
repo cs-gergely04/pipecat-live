@@ -1,6 +1,6 @@
-# Pipecat Assist Legacy amd64 Documentation
+# Pipecat Live Legacy amd64 Documentation
 
-This is the older-CPU amd64 variant of Pipecat Assist. It exists for systems
+This is the older-CPU amd64 variant of Pipecat Live. It exists for systems
 where the standard amd64 image crashes during startup with:
 
 ```text
@@ -9,5 +9,5 @@ RuntimeError: NumPy was built with baseline optimizations:
 (X86_V2).
 ```
 
-Configuration and usage are otherwise the same as the standard Pipecat Assist
+Configuration and usage are otherwise the same as the standard Pipecat Live
 add-on.

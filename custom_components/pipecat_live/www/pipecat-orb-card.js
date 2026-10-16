@@ -274,7 +274,7 @@ class PipecatOrbCard extends HTMLElement {
 
   async loadAddonConfig() {
     const path = this.proxyMode()
-      ? `/api/pipecat_assist/config${this.entryQuery()}`
+      ? `/api/pipecat_live/config${this.entryQuery()}`
       : "/api/assist/config";
     const res = await fetch(this.apiUrl(path), { headers: this.authHeaders() });
     if (!res.ok) throw new Error(`Config failed HTTP ${res.status}`);
@@ -494,7 +494,7 @@ class PipecatOrbCard extends HTMLElement {
       await this.waitForIce(peer);
 
       const offerPath = this.proxyMode()
-        ? `/api/pipecat_assist/offer${this.entryQuery()}`
+        ? `/api/pipecat_live/offer${this.entryQuery()}`
         : addonConfig.runner_offer_path || "api/offer";
 
       const requestData = {
@@ -1053,13 +1053,18 @@ class PipecatOrbCard extends HTMLElement {
   }
 }
 
-customElements.define("pipecat-orb-card", PipecatOrbCard);
+if (!customElements.get("pipecat-live-orb-card")) {
+  customElements.define("pipecat-live-orb-card", PipecatOrbCard);
+}
+if (!customElements.get("pipecat-orb-card")) {
+  customElements.define("pipecat-orb-card", PipecatOrbCard);
+}
 
 window.customCards = Array.isArray(window.customCards) ? window.customCards : [];
-if (!window.customCards.some((c) => c.type === "pipecat-orb-card")) {
+if (!window.customCards.some((c) => c.type === "pipecat-live-orb-card")) {
   window.customCards.push({
-    type: "pipecat-orb-card",
-    name: "Pipecat Orb Card",
+    type: "pipecat-live-orb-card",
+    name: "Pipecat Live Orb Card",
     description: "A circular tactile voice assistant with Expressive Avatar, 3D Quantum Blob, and Multimodal Camera Vision.",
     preview: true,
   });

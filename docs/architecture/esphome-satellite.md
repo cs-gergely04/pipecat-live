@@ -1,10 +1,10 @@
 # ESPHome satellite architecture
 
-Pipecat Assist supports ESPHome satellites through an authenticated,
+Pipecat Live supports ESPHome satellites through an authenticated,
 versioned raw-PCM WebSocket transport at:
 
 ```text
-ws://<home-assistant-lan-host>:7860/api/assist/esphome
+ws://<home-assistant-lan-host>:7865/api/assist/esphome
 ```
 
 The complete URL includes the active pipeline and satellite secret. A manual

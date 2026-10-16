@@ -1,6 +1,6 @@
 # ESPHome `va_pipecat`
 
-`va_pipecat` connects an ESPHome voice satellite directly to Pipecat Assist.
+`va_pipecat` connects an ESPHome voice satellite directly to Pipecat Live.
 It is intended for ESP32 devices using ESP-IDF, PSRAM, a 16 kHz mono
 microphone source, and an ESPHome `speaker`.
 
@@ -21,7 +21,7 @@ microphone, speaker, wake-word, automations, and device UI.
 
 ## Configuration
 
-By default, the Pipecat Assist add-on discovers compatible devices through
+By default, the Pipecat Live add-on discovers compatible devices through
 Home Assistant and provisions the authenticated endpoint automatically. Enable
 dynamic native API actions in ESPHome; do not publish the URL as a text entity.
 
@@ -131,7 +131,7 @@ button:
 sequenceDiagram
     participant Device as ESPHome va_pipecat
     participant HA as Home Assistant Core
-    participant Addon as Pipecat Assist add-on
+    participant Addon as Pipecat Live add-on
     Device->>HA: Register provision_pipecat(endpoint)
     Addon->>HA: GET /api/services
     HA-->>Addon: Compatible ESPHome actions

@@ -1,11 +1,11 @@
-"""Constants for Pipecat Assist."""
+"""Constants for Pipecat Live."""
 
-DOMAIN = "pipecat_assist"
-VERSION = "0.1.77"
+DOMAIN = "pipecat_live"
+VERSION = "0.1.80"
 CONF_URL = "url"
 CONF_TOKEN = "token"
 CONF_FLOW_ID = "flow_id"
-DEFAULT_URL = "http://127.0.0.1:7860"
+DEFAULT_URL = "http://127.0.0.1:7865"
 DEFAULT_LANGUAGE = "en"
 SUPPORTED_LANGUAGES = [
     "af",

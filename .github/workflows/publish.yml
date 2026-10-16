@@ -10,8 +10,8 @@ on:
 
 env:
   ARCHITECTURES: '["amd64", "aarch64"]'
-  IMAGE_NAME: pipecat-assist
-  LEGACY_AMD64_IMAGE_NAME: pipecat-assist-legacy-amd64
+  IMAGE_NAME: pipecat-live
+  LEGACY_AMD64_IMAGE_NAME: pipecat-live-legacy-amd64
   REGISTRY_PREFIX: ghcr.io/${{ github.repository }}
 
 permissions:
@@ -71,7 +71,7 @@ jobs:
           build-args: |
             BUILD_FROM=ghcr.io/home-assistant/${{ matrix.arch }}-base-debian:bookworm
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
-          context: addons/pipecat_assist
+          context: addons/pipecat_live
           cosign: "true"
           image: ${{ matrix.image }}
           image-tags: ${{ steps.release.outputs.image_tags }}
@@ -145,7 +145,7 @@ jobs:
             BUILD_FROM=ghcr.io/home-assistant/amd64-base-debian:bookworm
             LEGACY_AMD64_NUMPY=true
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
-          context: addons/pipecat_assist
+          context: addons/pipecat_live
           cosign: "true"
           image: ${{ env.REGISTRY_PREFIX }}/${{ env.LEGACY_AMD64_IMAGE_NAME }}
           image-tags: ${{ steps.release.outputs.image_tags }}

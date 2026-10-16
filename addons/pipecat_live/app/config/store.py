@@ -40,6 +40,19 @@ class ConfigStore:
 
         default = default_config_from_environment()
         if not self.path.exists():
+            legacy_path = self.path.parent / "pipecat_assist.json"
+            if legacy_path.exists():
+                try:
+                    with legacy_path.open("r", encoding="utf-8") as file:
+                        raw = json.load(file)
+                    data = default.model_dump()
+                    data.update(raw)
+                    _sanitize_raw_config_dict(data, default)
+                    config = RuntimeConfig.model_validate(data)
+                    self.save(config)
+                    return config
+                except Exception:
+                    pass
             if not default.satellite_shared_secret:
                 default.satellite_shared_secret = secrets.token_urlsafe(24)
             self.save(default)

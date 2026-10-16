@@ -108,7 +108,7 @@ app.include_router(esphome_router)
 
 def main() -> None:
     _configure_logging()
-    parser = argparse.ArgumentParser(description="Pipecat Assist")
+    parser = argparse.ArgumentParser(description="Pipecat Live")
     runner_main(parser)
 
 

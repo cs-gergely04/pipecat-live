@@ -194,7 +194,7 @@ def default_config_from_environment() -> RuntimeConfig:
         longlived_token=os.getenv("LONGLIVED_TOKEN", ""),
         satellite_shared_secret=os.getenv("SATELLITE_SHARED_SECRET", ""),
         runner_host=os.getenv("RUNNER_HOST", ""),
-        runner_port=_env_int("RUNNER_PORT", 7860),
+        runner_port=_env_int("RUNNER_PORT", 7865),
         esphome_follow_up_ms=max(
             0, min(60000, _env_int("ESPHOME_FOLLOW_UP_MS", 30000))
         ),

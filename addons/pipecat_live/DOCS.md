@@ -1,4 +1,4 @@
-# Pipecat Assist Documentation
+# Pipecat Live Documentation
 
 ## Requirements
 
@@ -8,7 +8,7 @@
 
 ## Configuration
 
-Most settings live in the Pipecat Assist web UI, not in Home Assistant add-on
+Most settings live in the Pipecat Live web UI, not in Home Assistant add-on
 options.
 
 `runner_port`
@@ -56,7 +56,7 @@ assistant.
 
 ### Home Assistant MCP
 
-In a normal Home Assistant add-on install, Pipecat Assist uses the Supervisor
+In a normal Home Assistant add-on install, Pipecat Live uses the Supervisor
 token provided by Home Assistant (`homeassistant_api: true`) to reach
 `/api/mcp`. Open **Integrations > Home Assistant MCP** and select **Test MCP**.
 
@@ -141,16 +141,16 @@ classic STT -> Conversation -> TTS path. For the lowest latency voice
 experience, use the add-on Assistant page, ESPHome satellite, Pipecat ESP32, or
 the Lovelace WebRTC card.
 
-1. Copy or install `custom_components/pipecat_assist` into Home Assistant.
+1. Copy or install `custom_components/pipecat_live` into Home Assistant.
 2. Restart Home Assistant if the integration is not already available.
-3. Add **Pipecat Assist** from **Settings > Devices & services**.
+3. Add **Pipecat Live** from **Settings > Devices & services**.
 4. Confirm the suggested add-on URL. In Home Assistant OS or Supervised
    installs, the integration asks Supervisor for the installed add-on and
    prefills the first reachable URL. Change it only if Core cannot reach the
    suggested address.
-5. In **Settings > Voice assistants**, select **Pipecat Assist** for
+5. In **Settings > Voice assistants**, select **Pipecat Live** for
    Conversation, Speech-to-text, and Text-to-speech. Use the only available
-   Pipecat Assist language entry; the real language and voice are configured in
+   Pipecat Live language entry; the real language and voice are configured in
    the add-on.
 6. Both Gemini Live and Google Gemini Cloud pipelines support the bridge.
 7. Type or speak a Home Assistant request in Assist and check the add-on logs
@@ -158,7 +158,7 @@ the Lovelace WebRTC card.
 
 ### Home Assistant AI Tasks image generation
 
-Pipecat Assist exposes the Home Assistant AI Task entity with generated-data
+Pipecat Live exposes the Home Assistant AI Task entity with generated-data
 and image-generation support. For images:
 
 1. Open **Integrations > Google Imagen**.
@@ -166,14 +166,14 @@ and image-generation support. For images:
    model.
 3. Open **Runtime > Image task provider** and either keep **First enabled image
    provider** or select **Google Imagen**.
-4. In Home Assistant AI Tasks or AI Actions, choose **Pipecat Assist** for
+4. In Home Assistant AI Tasks or AI Actions, choose **Pipecat Live** for
    image generation.
 
 ### Lovelace WebRTC card
 
 The custom component automatically registers the dashboard card module when the
-Pipecat Assist integration is installed. In the default Lovelace storage mode,
-open a dashboard, select **Add card**, and choose **Pipecat Assist** from
+Pipecat Live integration is installed. In the default Lovelace storage mode,
+open a dashboard, select **Add card**, and choose **Pipecat Live** from
 **Custom cards**.
 
 If your Lovelace resources are managed in YAML mode, add the card module as a
@@ -182,24 +182,24 @@ resource and then add a manual card:
 ```yaml
 lovelace:
   resources:
-    - url: /pipecat_assist/pipecat-assist-card.js?v=0.1.79
+    - url: /pipecat_live/pipecat-live-card.js?v=0.1.79
       type: module
 ```
 
 ```yaml
-type: custom:pipecat-assist-card
-name: Pipecat Assist
+type: custom:pipecat-live-card
+name: Pipecat Live
 animation_on_idle: true
 compact_mode: false
 accent_color: "#206cff"
 audio_buffer_ms: 120
 ```
 
-The card talks to Home Assistant at `/api/pipecat_assist/config` and
-`/api/pipecat_assist/offer`. The custom component proxies those calls to the
+The card talks to Home Assistant at `/api/pipecat_live/config` and
+`/api/pipecat_live/offer`. The custom component proxies those calls to the
 add-on and keeps the add-on Ingress token out of dashboard YAML. The card uses
 the active pipeline selected in the add-on. If you configure more than one
-Pipecat Assist integration entry, add `entry_id` to point the card at a
+Pipecat Live integration entry, add `entry_id` to point the card at a
 specific entry.
 
 `animation_on_idle` keeps the visualizer moving while nobody is speaking.
@@ -255,12 +255,12 @@ The SmallWebRTC endpoint remains available for standalone `pipecat-esp32`
 firmware:
 
 ```bash
-export PIPECAT_SMALLWEBRTC_URL="http://<ha-lan-ip>:7860/api/offer?token=<satellite-secret>"
+export PIPECAT_SMALLWEBRTC_URL="http://<ha-lan-ip>:7865/api/offer?token=<satellite-secret>"
 ```
 
 ## Home Assistant integration
 
-Copy or install `custom_components/pipecat_assist` from this repository, then
+Copy or install `custom_components/pipecat_live` from this repository, then
 add the integration in Home Assistant. The add-on URL is auto-detected through
 Supervisor when possible and remains editable for custom installations. The
 integration provides Conversation, STT, TTS, and the Lovelace card asset.

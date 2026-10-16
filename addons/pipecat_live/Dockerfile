@@ -25,15 +25,15 @@ RUN apt-get update \
         python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml /tmp/pipecat_assist/pyproject.toml
-COPY constraints-legacy-amd64.txt /tmp/pipecat_assist/constraints-legacy-amd64.txt
-COPY app/ /tmp/pipecat_assist/app/
+COPY pyproject.toml /tmp/pipecat_live/pyproject.toml
+COPY constraints-legacy-amd64.txt /tmp/pipecat_live/constraints-legacy-amd64.txt
+COPY app/ /tmp/pipecat_live/app/
 RUN if [ "${LEGACY_AMD64_NUMPY}" = "true" ]; then \
-        pip3 install --constraint /tmp/pipecat_assist/constraints-legacy-amd64.txt /tmp/pipecat_assist; \
+        pip3 install --constraint /tmp/pipecat_live/constraints-legacy-amd64.txt /tmp/pipecat_live; \
     else \
-        pip3 install /tmp/pipecat_assist; \
+        pip3 install /tmp/pipecat_live; \
     fi \
-    && rm -rf /tmp/pipecat_assist
+    && rm -rf /tmp/pipecat_live
 
 COPY app/ /app/
 COPY root/ /
@@ -43,7 +43,7 @@ LABEL \
     io.hass.version="${BUILD_VERSION}" \
     io.hass.type="app" \
     io.hass.arch="${BUILD_ARCH}" \
-    org.opencontainers.image.title="Pipecat Assist" \
+    org.opencontainers.image.title="Pipecat Live" \
     org.opencontainers.image.source="https://github.com/cs-gergely04/pipecat-gemini"
 
 WORKDIR /

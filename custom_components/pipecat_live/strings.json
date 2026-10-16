@@ -2,18 +2,18 @@
   "config": {
     "step": {
       "user": {
-        "title": "Pipecat Assist",
-        "description": "Connect Home Assistant Assist, STT, TTS, and Lovelace to the Pipecat Assist add-on. The URL is detected automatically when Supervisor access is available.",
+        "title": "Pipecat Live",
+        "description": "Connect Home Assistant Assist, STT, TTS, and Lovelace to the Pipecat Live add-on. The URL is detected automatically when Supervisor access is available.",
         "data": {
           "url": "Add-on URL"
         }
       }
     },
     "error": {
-      "cannot_connect": "Cannot connect to Pipecat Assist."
+      "cannot_connect": "Cannot connect to Pipecat Live."
     },
     "abort": {
-      "already_configured": "Pipecat Assist is already configured."
+      "already_configured": "Pipecat Live is already configured."
     }
   }
 }

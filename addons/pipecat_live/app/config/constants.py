@@ -5,8 +5,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-DATA_DIR = Path(os.getenv("PIPECAT_ASSIST_DATA_DIR", "/data"))
-CONFIG_PATH = DATA_DIR / "pipecat_assist.json"
+DATA_DIR = Path(os.getenv("PIPECAT_LIVE_DATA_DIR", os.getenv("PIPECAT_ASSIST_DATA_DIR", "/data")))
+CONFIG_PATH = DATA_DIR / "pipecat_live.json"
 REDACTED = "__redacted__"
 
 DEFAULT_INSTRUCTIONS = (

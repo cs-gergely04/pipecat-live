@@ -1,7 +1,7 @@
 [project]
-name = "pipecat-assist"
-version = "0.1.79"
-description = "Home Assistant add-on for Pipecat Gemini realtime assistants"
+name = "pipecat-live"
+version = "0.1.80"
+description = "Home Assistant add-on for Pipecat Live Gemini assistants"
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "fastapi>=0.115.0",

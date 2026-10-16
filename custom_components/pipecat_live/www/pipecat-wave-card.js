@@ -174,7 +174,7 @@ class PipecatWaveCard extends HTMLElement {
   }
 
   static getStubConfig() {
-    return { name: "Pipecat Assist" };
+    return { name: "Pipecat Live" };
   }
 
   connectedCallback() {
@@ -286,7 +286,7 @@ class PipecatWaveCard extends HTMLElement {
 
   async loadAddonConfig() {
     const path = this.proxyMode()
-      ? `/api/pipecat_assist/config${this.entryQuery()}`
+      ? `/api/pipecat_live/config${this.entryQuery()}`
       : "/api/assist/config";
     const res = await fetch(this.apiUrl(path), { headers: this.authHeaders() });
     if (!res.ok) throw new Error(`Config failed HTTP ${res.status}`);
@@ -573,7 +573,7 @@ class PipecatWaveCard extends HTMLElement {
       await this.waitForIce(peer);
 
       const offerPath = this.proxyMode()
-        ? `/api/pipecat_assist/offer${this.entryQuery()}`
+        ? `/api/pipecat_live/offer${this.entryQuery()}`
         : addonConfig.runner_offer_path || "api/offer";
 
       const requestData = {
@@ -1066,7 +1066,7 @@ class PipecatWaveCard extends HTMLElement {
       </style>
       <ha-card>
         <div class="card-header">
-          <div class="header-title">${escapeHtml(this.config.name || "Pipecat Assist")}</div>
+          <div class="header-title">${escapeHtml(this.config.name || "Pipecat Live")}</div>
           <div class="status-text">${escapeHtml(status)}</div>
         </div>
 
@@ -1118,13 +1118,18 @@ class PipecatWaveCard extends HTMLElement {
   }
 }
 
-customElements.define("pipecat-wave-card", PipecatWaveCard);
+if (!customElements.get("pipecat-live-wave-card")) {
+  customElements.define("pipecat-live-wave-card", PipecatWaveCard);
+}
+if (!customElements.get("pipecat-wave-card")) {
+  customElements.define("pipecat-wave-card", PipecatWaveCard);
+}
 
 window.customCards = Array.isArray(window.customCards) ? window.customCards : [];
-if (!window.customCards.some((c) => c.type === "pipecat-wave-card")) {
+if (!window.customCards.some((c) => c.type === "pipecat-live-wave-card")) {
   window.customCards.push({
-    type: "pipecat-wave-card",
-    name: "Pipecat Wave Card",
+    type: "pipecat-live-wave-card",
+    name: "Pipecat Live Wave Card",
     description: "Minimalist conversational card with dual background soundwaves and rounded control cards.",
     preview: true,
   });

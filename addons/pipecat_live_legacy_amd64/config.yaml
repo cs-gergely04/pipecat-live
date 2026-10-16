@@ -1,9 +1,9 @@
-name: Pipecat Assist Legacy amd64
+name: Pipecat Live Legacy amd64
 version: "0.1.74"
-slug: pipecat_assist_legacy_amd64
-description: Realtime Pipecat assistant for older amd64 CPUs without x86-64-v2 support.
+slug: pipecat_live_legacy_amd64
+description: Realtime Pipecat Live assistant for older amd64 CPUs without x86-64-v2 support.
 url: https://github.com/cs-gergely04/pipecat-gemini
-image: ghcr.io/cs-gergely04/pipecat-gemini/pipecat-assist-legacy-amd64
+image: ghcr.io/cs-gergely04/pipecat-gemini/pipecat-live-legacy-amd64
 arch:
   - amd64
 init: false
@@ -11,13 +11,13 @@ startup: application
 boot: auto
 host_network: true
 ingress: true
-ingress_port: 7860
+ingress_port: 7865
 panel_icon: mdi:account-voice
 homeassistant_api: true
 hassio_api: true
 hassio_role: manager
 options:
-  runner_port: 7860
+  runner_port: 7865
   log_level: "INFO"
 schema:
   runner_port: port

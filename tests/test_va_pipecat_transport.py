@@ -7,7 +7,7 @@ import sys
 import unittest
 from pathlib import Path
 
-ADDON_ROOT = Path(__file__).resolve().parents[1] / "addons" / "pipecat_assist"
+ADDON_ROOT = Path(__file__).resolve().parents[1] / "addons" / "pipecat_live"
 sys.path.insert(0, str(ADDON_ROOT))
 
 from app.va_pipecat import (  # noqa: E402

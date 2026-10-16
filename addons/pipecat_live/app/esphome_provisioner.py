@@ -61,7 +61,7 @@ def build_esphome_endpoint(config: Any, ha_config: dict[str, Any] | None = None)
     )
     suffix = f"?{query}" if query else ""
     return (
-        f"ws://{host}:{int(getattr(config, 'runner_port', 7860))}"
+        f"ws://{host}:{int(getattr(config, 'runner_port', 7865))}"
         f"/api/assist/esphome{suffix}"
     )
 

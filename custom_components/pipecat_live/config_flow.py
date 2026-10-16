@@ -1,4 +1,4 @@
-"""Config flow for Pipecat Assist."""
+"""Config flow for Pipecat Live."""
 
 from __future__ import annotations
 
@@ -15,10 +15,10 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import CONF_URL, DEFAULT_URL, DOMAIN
 
-ADDON_NAME = "Pipecat Assist"
-ADDON_SLUG_SUFFIX = "pipecat_assist"
-ADDON_IMAGE_NAME = "pipecat-assist"
-DEFAULT_ADDON_PORT = 7860
+ADDON_NAME = "Pipecat Live"
+ADDON_SLUG_SUFFIX = "pipecat_live"
+ADDON_IMAGE_NAME = "pipecat-live"
+DEFAULT_ADDON_PORT = 7865
 SUPERVISOR_URL = os.getenv("SUPERVISOR", "http://supervisor").rstrip("/")
 if not SUPERVISOR_URL.startswith(("http://", "https://")):
     SUPERVISOR_URL = f"http://{SUPERVISOR_URL}"
@@ -41,12 +41,11 @@ def _matches_pipecat_addon(addon: dict[str, Any]) -> bool:
     slug = str(addon.get("slug", "")).lower()
     name = str(addon.get("name", "")).lower()
     image = str(addon.get("image", "")).lower()
-    repository = str(addon.get("repository", "")).lower()
     return (
         slug.endswith(ADDON_SLUG_SUFFIX)
+        or slug.endswith("pipecat_live_legacy_amd64")
         or name == ADDON_NAME.lower()
         or ADDON_IMAGE_NAME in image
-        or "pipecat-gemini" in repository
     )
 
 
@@ -135,8 +134,8 @@ async def _suggest_addon_url(hass: HomeAssistant) -> str:
     return candidates[0] if candidates else DEFAULT_URL
 
 
-class PipecatAssistConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a Pipecat Assist config flow."""
+class PipecatLiveConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a Pipecat Live config flow."""
 
     VERSION = 1
 
@@ -162,7 +161,7 @@ class PipecatAssistConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.async_set_unique_id(url)
                 self._abort_if_unique_id_configured()
                 data = {CONF_URL: url}
-                return self.async_create_entry(title="Pipecat Assist", data=data)
+                return self.async_create_entry(title="Pipecat Live", data=data)
 
         return self.async_show_form(
             step_id="user",

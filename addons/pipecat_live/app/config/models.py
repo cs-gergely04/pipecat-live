@@ -143,7 +143,7 @@ class RuntimeConfig(BaseModel):
     longlived_token: str = ""
     satellite_shared_secret: str = ""
     runner_host: str = ""
-    runner_port: int = Field(default=7860, ge=1024, le=65535)
+    runner_port: int = Field(default=7865, ge=1024, le=65535)
     esphome_follow_up_ms: int = Field(default=30000, ge=0, le=60000)
     esphome_follow_up_open_delay_ms: int = Field(default=80, ge=0, le=5000)
     esphome_wake_open_delay_ms: int = Field(default=0, ge=0, le=5000)

@@ -1,4 +1,4 @@
-"""AI Task entity for Pipecat Assist."""
+"""AI Task entity for Pipecat Live."""
 
 from __future__ import annotations
 
@@ -60,16 +60,16 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Pipecat Assist AI Tasks."""
+    """Set up Pipecat Live AI Tasks."""
 
-    async_add_entities([PipecatAssistAITaskEntity(hass, entry)])
+    async_add_entities([PipecatLiveAITaskEntity(hass, entry)])
 
 
-class PipecatAssistAITaskEntity(ai_task.AITaskEntity):
-    """AI Task entity backed by the Pipecat Assist add-on."""
+class PipecatLiveAITaskEntity(ai_task.AITaskEntity):
+    """AI Task entity backed by the Pipecat Live add-on."""
 
     _attr_has_entity_name = True
-    _attr_name = "Pipecat Assist"
+    _attr_name = "Pipecat Live"
     _attr_supported_features = SUPPORTED_FEATURES
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -110,10 +110,10 @@ class PipecatAssistAITaskEntity(ai_task.AITaskEntity):
                 data = await _response_payload(response)
                 if response.status >= 400:
                     raise HomeAssistantError(
-                        data.get("detail") or "Pipecat Assist AI Task failed"
+                        data.get("detail") or "Pipecat Live AI Task failed"
                     )
         except aiohttp.ClientError as err:
-            raise HomeAssistantError(f"Pipecat Assist is not reachable: {err}") from err
+            raise HomeAssistantError(f"Pipecat Live is not reachable: {err}") from err
 
         return ai_task.GenDataTaskResult(
             conversation_id=data.get("conversation_id") or chat_log.conversation_id,
@@ -150,17 +150,17 @@ class PipecatAssistAITaskEntity(ai_task.AITaskEntity):
                 data = await _response_payload(response)
                 if response.status >= 400:
                     raise HomeAssistantError(
-                        data.get("detail") or "Pipecat Assist image generation failed"
+                        data.get("detail") or "Pipecat Live image generation failed"
                     )
         except aiohttp.ClientError as err:
-            raise HomeAssistantError(f"Pipecat Assist is not reachable: {err}") from err
+            raise HomeAssistantError(f"Pipecat Live is not reachable: {err}") from err
 
         try:
             image_data = base64.b64decode(str(data.get("image_base64") or ""), validate=True)
         except (binascii.Error, ValueError) as err:
-            raise HomeAssistantError("Pipecat Assist returned invalid image data") from err
+            raise HomeAssistantError("Pipecat Live returned invalid image data") from err
         if not image_data:
-            raise HomeAssistantError("Pipecat Assist returned an empty image")
+            raise HomeAssistantError("Pipecat Live returned an empty image")
 
         return ai_task.GenImageTaskResult(
             conversation_id=data.get("conversation_id") or chat_log.conversation_id,

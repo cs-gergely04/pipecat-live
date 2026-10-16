@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cs-gergely04/pipecat-gemini/main/addons/pipecat_assist/logo.png" alt="Pipecat Assist" width="320">
+  <img src="https://raw.githubusercontent.com/cs-gergely04/pipecat-gemini/main/addons/pipecat_live/logo.png" alt="Pipecat Live" width="320">
 </p>
 
-# Pipecat Assist
+# Pipecat Live
 
-Pipecat Assist runs a realtime Pipecat voice agent inside Home Assistant. It
+Pipecat Live runs a realtime Pipecat voice agent inside Home Assistant. It
 connects to Home Assistant MCP for device control, serves a web UI through
 Ingress, exposes WebRTC and ESPHome satellite transports, and backs Home
 Assistant AI Tasks for generated data and image generation.
