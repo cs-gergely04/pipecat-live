@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   AlertCircle,
@@ -33,94 +33,8 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
-const UI_TRANSLATIONS = {
-  pl: {
-    "Assistant": "Asystent",
-    "Pipelines": "Pipeline'y",
-    "Integrations": "Integracje",
-    "Runtime": "Runtime",
-    "ready": "gotowy",
-    "setup needed": "wymagana konfiguracja",
-    "Back to pipeline": "Wróć do pipeline",
-    "Back to pipelines": "Wróć do pipeline'ów",
-    "Back to integrations": "Wróć do integracji",
-    "Light mode": "Tryb jasny",
-    "Dark mode": "Tryb ciemny",
-    "Loading": "Ładowanie",
-    "Interface did not load": "Interfejs się nie załadował",
-    "Retry": "Ponów",
-    "Add pipeline": "Dodaj pipeline",
-    "Set active": "Ustaw aktywny",
-    "Active": "Aktywny",
-    "Duplicate": "Duplikuj",
-    "Delete": "Usuń",
-    "Save": "Zapisz",
-    "Save pipeline": "Zapisz pipeline",
-    "Save integration": "Zapisz integrację",
-    "Save runtime": "Zapisz runtime",
-    "Reset defaults": "Przywróć domyślne",
-    "Pipeline is valid.": "Pipeline jest poprawny.",
-    "Ready": "Gotowy",
-    "Setup needed": "Wymagana konfiguracja",
-    "Connected": "Połączono",
-    "Connecting": "Łączenie",
-    "Needs attention": "Wymaga uwagi",
-    "Idle": "Bezczynny",
-    "Microphone": "Mikrofon",
-    "Start voice test": "Rozpocznij test głosu",
-    "Stop voice test": "Zatrzymaj test głosu",
-    "Edit active pipeline": "Edytuj aktywny pipeline",
-    "The easiest way to get started is with Gemini Live.": "Najłatwiej zacząć od Gemini Live.",
-    "Google AI Studio": "Google AI Studio",
-    "Integration": "Integracja",
-    "Step enabled": "Krok aktywny",
-    "Instructions": "Instrukcje",
-    "No greeting": "Bez powitania",
-    "Greeting": "Powitanie",
-    "Announce web search": "Zapowiadaj web search",
-    "Enabled": "Włączone",
-    "Name": "Nazwa",
-    "Cloud LLM provider": "Provider Cloud LLM",
-    "Search model": "Model wyszukiwania",
-    "Home Assistant actions": "Akcje Home Assistant",
-    "Audio debug": "Debug audio",
-    "Refresh": "Odśwież",
-    "Clear": "Wyczyść",
-    "Record audio in/out": "Nagrywaj audio wej./wyj.",
-    "Session memory": "Pamięć sesji",
-    "Memory reuse": "Ponowne użycie pamięci",
-    "Memory messages": "Wiadomości pamięci",
-    "MCP tools cache": "Cache narzędzi MCP",
-    "MCP cache TTL": "TTL cache MCP",
-  },
-};
-
-UI_TRANSLATIONS.pl["Image task provider"] = "\u0179r\u00f3d\u0142o obraz\u00f3w AI";
-UI_TRANSLATIONS.pl["First enabled image provider"] = "Pierwszy w\u0142\u0105czony provider obraz\u00f3w";
-UI_TRANSLATIONS.pl["Auto-detect"] = "Wykryj automatycznie";
-UI_TRANSLATIONS.pl["Test MCP"] = "Test MCP";
-UI_TRANSLATIONS.pl["Automatic"] = "Automatycznie";
-UI_TRANSLATIONS.pl["Not detected"] = "Nie wykryto";
-UI_TRANSLATIONS.pl["Detected endpoint"] = "Wykryty endpoint";
-UI_TRANSLATIONS.pl["Manual URL"] = "R\u0119czny URL";
-UI_TRANSLATIONS.pl["Hide manual"] = "Ukryj r\u0119czne";
-UI_TRANSLATIONS.pl["MCP server URL"] = "URL serwera MCP";
-
-function detectLocale() {
-  const candidates = [
-    document.documentElement.lang,
-    window.localStorage.getItem("selectedLanguage"),
-    window.localStorage.getItem("language"),
-    navigator.language,
-    ...(navigator.languages || []),
-  ].filter(Boolean);
-  return candidates.some((value) => String(value).toLowerCase().startsWith("pl")) ? "pl" : "en";
-}
-
-const UI_LOCALE = detectLocale();
-
 function t(value) {
-  return UI_TRANSLATIONS[UI_LOCALE]?.[value] || value;
+  return value;
 }
 
 function documentBaseUrl() {
@@ -153,54 +67,23 @@ const ASSISTANT_CARD_AUDIO_BUFFER_MS = 120;
 const STREAM_FADE_GROUPS = 4;
 const STREAM_CHARS_PER_GROUP = 2;
 const STREAM_FADE_LEN = STREAM_FADE_GROUPS * STREAM_CHARS_PER_GROUP;
-const END_CONVERSATION_PATTERNS = [
-  /\b(to wszystko|wystarczy|dziekuje to wszystko|dzieki to wszystko)\b/,
-  /\b(dziekuje koniec|dzieki koniec|ok koniec|okej koniec|dobra koniec)\b/,
-  /\b(koniec rozmowy|konczymy rozmowe|zakoncz rozmowe|zakonczmy rozmowe)\b/,
-  /\b(przestan sluchac|nie sluchaj|nie nasluchuj)\b/,
-  /\b(that is all|that's all|thanks that's all|thank you that's all)\b/,
-  /\b(end conversation|stop listening|we are done|goodbye|bye for now)\b/,
-  /\b(milego dnia|do uslyszenia|do zobaczenia|na razie)\b/,
-  /\b(have a nice day|talk to you later|see you later)\b/,
-];
-const SHORT_END_CONVERSATION_PATTERN =
-  /^(?:ok|okej|dobra|no|dziekuje|dzieki|thanks|thank you)?\s*(?:koniec|wystarczy|goodbye|bye)\s*$/;
 
-const ASSISTANT_CARD_TRANSLATIONS = {
-  en: {
-    ready: "Ready",
-    connecting: "Connecting",
-    connected: "Connected",
-    error: "Error",
-    greeting: "What would you like to do today?",
-    talk: "Talk",
-    stop: "Stop",
-    enableAudio: "Enable audio",
-    audioBlocked: "Audio is connected, but the browser blocked playback.",
-    waitingForMicrophone: "Waiting for microphone permission",
-    microphoneUnavailable: "Microphone access is not available from this browser context.",
-    microphoneBlocked: "Microphone access is blocked. Allow microphone access and retry.",
-    connectedDetail: "Connected. Speak to Pipecat Assist.",
-    connectingAudio: "Connecting audio",
-    setupNeeded: "Setup needed",
-  },
-  pl: {
-    ready: "Gotowy",
-    connecting: "\u0141\u0105czenie",
-    connected: "Po\u0142\u0105czono",
-    error: "B\u0142\u0105d",
-    greeting: "Co chcia\u0142by\u015b dzisiaj zrobi\u0107?",
-    talk: "M\u00f3w",
-    stop: "Zatrzymaj",
-    enableAudio: "W\u0142\u0105cz d\u017awi\u0119k",
-    audioBlocked: "D\u017awi\u0119k jest po\u0142\u0105czony, ale przegl\u0105darka zablokowa\u0142a odtwarzanie.",
-    waitingForMicrophone: "Oczekiwanie na zgod\u0119 u\u017cycia mikrofonu",
-    microphoneUnavailable: "Dost\u0119p do mikrofonu nie jest dost\u0119pny w tej przegl\u0105darce.",
-    microphoneBlocked: "Dost\u0119p do mikrofonu jest zablokowany. Zezw\u00f3l na mikrofon i spr\u00f3buj ponownie.",
-    connectedDetail: "Po\u0142\u0105czono. Powiedz co\u015b do Pipecat Assist.",
-    connectingAudio: "\u0141\u0105czenie audio",
-    setupNeeded: "Wymagana konfiguracja",
-  },
+const ASSISTANT_CARD_LABELS = {
+  ready: "Ready",
+  connecting: "Connecting",
+  connected: "Connected",
+  error: "Error",
+  greeting: "What would you like to do today?",
+  talk: "Talk",
+  stop: "Stop",
+  enableAudio: "Enable audio",
+  audioBlocked: "Audio is connected, but the browser blocked playback.",
+  waitingForMicrophone: "Waiting for microphone permission",
+  microphoneUnavailable: "Microphone access is not available from this browser context.",
+  microphoneBlocked: "Microphone access is blocked. Allow microphone access and retry.",
+  connectedDetail: "Connected. Speak to Pipecat Assist.",
+  connectingAudio: "Connecting audio",
+  setupNeeded: "Setup needed",
 };
 
 function clamp(value, min, max) {
@@ -443,23 +326,12 @@ function isRtviAssistantTextType(type) {
   return rtviAssistantTextPriority(type) > 0;
 }
 
-function shouldEndConversation(text) {
-  const clean = String(text || "")
-    .replace(/ł/g, "l")
-    .replace(/Ł/g, "L")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9']+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (!clean) return false;
-  return SHORT_END_CONVERSATION_PATTERN.test(clean)
-    || END_CONVERSATION_PATTERNS.some((pattern) => pattern.test(clean));
+function shouldEndConversation(_text) {
+  return false;
 }
 
 function assistantCardT(key) {
-  return ASSISTANT_CARD_TRANSLATIONS[UI_LOCALE]?.[key] || ASSISTANT_CARD_TRANSLATIONS.en[key] || key;
+  return ASSISTANT_CARD_LABELS[key] || key;
 }
 
 function mergeOpusFmtp(existing) {
@@ -563,8 +435,6 @@ const protectedIntegrationIds = [
 ];
 
 const languageIntegrationKinds = [
-  "gemini",
-  "gemini_cloud",
   "google_cloud_stt",
 ];
 
@@ -672,10 +542,10 @@ const defaultFlow = {
   text_model: GEMINI_TEXT_MODEL,
   voice: GEMINI_LIVE_VOICE,
   speed: 1,
-  language: "en",
+  language: "",
   instructions:
     "You are a realtime Home Assistant voice agent. Speak naturally and briefly. Use Home Assistant MCP tools only when the user clearly asks to control, inspect, or automate the home. Never invent device state. If a room, device, or action is ambiguous, ask one short clarification.",
-  greeting: "Greet the user briefly and wait for their request.",
+  greeting: "",
   transcription_model: "gemini-live",
   noise_reduction: "near_field",
   vad_mode: "semantic_vad",
@@ -706,313 +576,7 @@ const defaultFlow = {
   },
 };
 
-const pizzaConversationFlow = {
-  enabled: true,
-  initial_node_id: "home_router",
-  nodes: [
-    {
-      id: "home_router",
-      label: "Home router",
-      role_message:
-        "You are a realtime Home Assistant voice agent. Speak naturally and briefly. Use Home Assistant MCP tools only when the user clearly asks to control, inspect, or automate the home.",
-      task: "Handle normal smart-home requests. If the user wants to order pizza, call start_pizza_order.",
-      functions: [
-        {
-          name: "start_pizza_order",
-          description: "Start a guided pizza ordering conversation.",
-          properties: {},
-          required: [],
-          next_node_id: "pizza_order",
-        },
-      ],
-    },
-    {
-      id: "pizza_order",
-      label: "Pizza order",
-      role_message: "Collect pizza order details, confirm them, then call the configured Home Assistant MCP tool.",
-      task: "Collect size, toppings, delivery details, and confirmation.",
-      functions: [
-        {
-          name: "place_pizza_order",
-          description: "Place the pizza order through Home Assistant MCP after confirmation.",
-          properties: {
-            size: { type: "string", description: "Pizza size" },
-            toppings: { type: "array", items: { type: "string" }, description: "Requested toppings" },
-            address: { type: "string", description: "Delivery address" },
-            notes: { type: "string", description: "Optional notes" },
-          },
-          required: ["size", "toppings"],
-          mcp_tool: "",
-          next_node_id: "done",
-        },
-      ],
-    },
-    {
-      id: "done",
-      label: "Done",
-      role_message: "Speak briefly and naturally.",
-      task: "Confirm the result and end the conversation.",
-      post_actions: [{ type: "end_conversation" }],
-    },
-  ],
-};
-
 const FLOW_SCHEMA_ID = "https://flows.pipecat.ai/schema/flow.json";
-
-const officialMinimalFlow = {
-  $id: FLOW_SCHEMA_ID,
-  meta: { name: "Minimal", version: "0.1.0", description: "Minimal initial to end flow" },
-  nodes: [
-    {
-      id: "initial",
-      type: "initial",
-      position: { x: 80, y: 120 },
-      data: {
-        label: "Initial",
-        task_messages: [{ role: "system", content: "Hello! This is a minimal flow." }],
-        functions: [{ name: "done", description: "Continue to end", next_node_id: "end" }],
-      },
-    },
-    {
-      id: "end",
-      type: "end",
-      position: { x: 390, y: 120 },
-      data: {
-        label: "End",
-        task_messages: [{ role: "system", content: "Thank you and goodbye." }],
-        post_actions: [{ type: "end_conversation" }],
-      },
-    },
-  ],
-  edges: [{ id: "func-initial-done-end", source: "initial", target: "end", label: "done" }],
-};
-
-const officialFoodOrderingFlow = {
-  $id: FLOW_SCHEMA_ID,
-  meta: {
-    name: "Food Ordering",
-    version: "0.1.0",
-    description: "Initial to Pizza/Sushi branch, confirm, and end",
-  },
-  nodes: [
-    {
-      id: "initial",
-      type: "initial",
-      position: { x: 80, y: 150 },
-      data: {
-        label: "Initial",
-        role_messages: [
-          {
-            role: "system",
-            content:
-              "You are a helpful food ordering assistant. You must always use the available functions to progress the conversation.",
-          },
-        ],
-        task_messages: [
-          {
-            role: "system",
-            content: "Welcome the user warmly and ask if they would like to order pizza or sushi today.",
-          },
-        ],
-        functions: [
-          { name: "choose_pizza", description: "User wants to order pizza", next_node_id: "pizza_task" },
-          { name: "choose_sushi", description: "User wants to order sushi", next_node_id: "sushi_task" },
-        ],
-      },
-    },
-    {
-      id: "pizza_task",
-      type: "node",
-      position: { x: 390, y: 70 },
-      data: {
-        label: "Pizza Task",
-        task_messages: [
-          {
-            role: "system",
-            content:
-              "Ask what size and type of pizza the user wants. Use select_pizza_order when they provide both size and type. Pricing: small $10, medium $15, large $20.",
-          },
-        ],
-        functions: [
-          {
-            name: "select_pizza_order",
-            description: "Record pizza order details",
-            properties: {
-              size: { type: "string", enum: ["small", "medium", "large"], description: "Pizza size" },
-              type: {
-                type: "string",
-                enum: ["pepperoni", "cheese", "supreme", "vegetarian"],
-                description: "Pizza type",
-              },
-            },
-            required: ["size", "type"],
-            next_node_id: "confirm",
-          },
-        ],
-      },
-    },
-    {
-      id: "sushi_task",
-      type: "node",
-      position: { x: 390, y: 230 },
-      data: {
-        label: "Sushi Task",
-        task_messages: [
-          {
-            role: "system",
-            content:
-              "Ask how many rolls and what type of sushi the user wants. Use select_sushi_order when they provide both count and type. Pricing: $8 per roll.",
-          },
-        ],
-        functions: [
-          {
-            name: "select_sushi_order",
-            description: "Record sushi order details",
-            properties: {
-              count: { type: "integer", minimum: 1, maximum: 10, description: "Number of rolls" },
-              type: {
-                type: "string",
-                enum: ["california", "spicy tuna", "rainbow", "dragon"],
-                description: "Sushi type",
-              },
-            },
-            required: ["count", "type"],
-            next_node_id: "confirm",
-          },
-        ],
-      },
-    },
-    {
-      id: "confirm",
-      type: "node",
-      position: { x: 710, y: 150 },
-      data: {
-        label: "Confirm",
-        task_messages: [
-          {
-            role: "system",
-            content:
-              "Read the order details back to the user. Use complete_order if they confirm, or revise_order if they want to make changes.",
-          },
-        ],
-        functions: [
-          { name: "complete_order", description: "User confirms the order is correct", next_node_id: "end" },
-          { name: "revise_order", description: "User wants to change the order", next_node_id: "initial" },
-        ],
-      },
-    },
-    {
-      id: "end",
-      type: "end",
-      position: { x: 1030, y: 150 },
-      data: {
-        label: "End",
-        task_messages: [{ role: "system", content: "Thank the user for their order and end politely." }],
-        post_actions: [{ type: "end_conversation" }],
-      },
-    },
-  ],
-  edges: [],
-};
-
-const officialHomePizzaFlow = {
-  $id: FLOW_SCHEMA_ID,
-  meta: {
-    name: "Home Pizza via MCP",
-    version: "0.1.0",
-    description: "Guided pizza order that can finish by calling a Home Assistant MCP tool",
-  },
-  nodes: [
-    {
-      id: "home_router",
-      type: "initial",
-      position: { x: 80, y: 140 },
-      data: {
-        label: "Home Router",
-        role_messages: [
-          {
-            role: "system",
-            content:
-              "You are a realtime Home Assistant voice agent. Speak naturally and briefly. Use Home Assistant MCP tools only when the user clearly asks to control, inspect, or automate the home.",
-          },
-        ],
-        task_messages: [
-          {
-            role: "system",
-            content:
-              "Handle normal smart-home requests. If the user wants pizza, call start_pizza_order and guide the dedicated ordering flow.",
-          },
-        ],
-        functions: [
-          {
-            name: "start_pizza_order",
-            description: "Start a guided pizza ordering conversation",
-            next_node_id: "pizza_order",
-          },
-        ],
-        respond_immediately: true,
-      },
-    },
-    {
-      id: "pizza_order",
-      type: "node",
-      position: { x: 420, y: 140 },
-      data: {
-        label: "Pizza Order",
-        task_messages: [
-          {
-            role: "system",
-            content:
-              "Collect pizza size, toppings, delivery details, and explicit confirmation. After confirmation, call place_pizza_order.",
-          },
-        ],
-        functions: [
-          {
-            name: "place_pizza_order",
-            description: "Place the pizza order through Home Assistant MCP after confirmation",
-            properties: {
-              size: { type: "string", enum: ["small", "medium", "large"], description: "Pizza size" },
-              toppings: { type: "array", description: "Requested toppings" },
-              address: { type: "string", description: "Delivery address" },
-              notes: { type: "string", description: "Optional order notes" },
-            },
-            required: ["size", "toppings"],
-            mcp_tool: "",
-            next_node_id: "done",
-          },
-        ],
-      },
-    },
-    {
-      id: "done",
-      type: "end",
-      position: { x: 780, y: 140 },
-      data: {
-        label: "Done",
-        task_messages: [{ role: "system", content: "Confirm the result briefly and end the conversation." }],
-        post_actions: [{ type: "end_conversation" }],
-      },
-    },
-  ],
-  edges: [],
-};
-
-const flowExampleTemplates = [
-  { id: "passthrough", name: "Pass-through", description: "Transparent flow with no routing", flow: null },
-  { id: "minimal", name: "Minimal", description: "Official minimal initial to end example", flow: officialMinimalFlow },
-  {
-    id: "food_ordering",
-    name: "Food Ordering",
-    description: "Official branching food ordering example",
-    flow: officialFoodOrderingFlow,
-  },
-  {
-    id: "home_pizza_mcp",
-    name: "Home Pizza via MCP",
-    description: "HA-oriented pizza flow with a final MCP tool call",
-    flow: officialHomePizzaFlow,
-  },
-];
 
 function slugify(value) {
   return value
@@ -1345,7 +909,7 @@ function applyTemplate(flow, templateId, config = null) {
     model: defaults.model || flowModel || stepModel || "",
     text_model: defaults.text_model || flow.text_model || "",
     voice: defaults.voice || flowVoice || stepVoice || "",
-    language: flow.language || "en",
+    language: flow.language || "",
     steps,
     conversation_flow:
       template.mode === "composed"
@@ -1370,7 +934,7 @@ function ensureShape(config) {
   const shaped = clone(config);
   shaped.integrations = (shaped.integrations || []).map((integration) => ({
     ...integration,
-    language: integration.language || "en",
+    language: integration.language || "",
     speed: Number(integration.speed || 1),
     tts_streaming_mode: integration.tts_streaming_mode || "sentence",
     provider_id: integration.provider_id || (integration.kind === "web_search" ? "gemini-cloud" : ""),
@@ -1459,7 +1023,7 @@ function syncFlow(flow, config = null) {
     mcp_enabled: hasTools,
     memory_enabled: hasMemory,
     web_search_enabled: hasWebSearch,
-    language: flow.language || "en",
+    language: flow.language || "",
     max_output_tokens: flow.max_output_tokens ? Number(flow.max_output_tokens) : null,
     reasoning_effort: flow.reasoning_effort || null,
     mcp_tool_allowlist: Array.isArray(flow.mcp_tool_allowlist)
@@ -1888,7 +1452,7 @@ function App() {
       token: "",
       base_url: "",
       endpoint: "",
-      language: "en",
+      language: "",
       speed: 1,
       tts_streaming_mode: "sentence",
       default_model: providerDefaults(kind).text_model || "",
@@ -2424,6 +1988,385 @@ function AssistantView({ config, flow, status }) {
   );
 }
 
+function McpResultDetails({ result }) {
+  const [expanded, setExpanded] = useState(false);
+  const [showSchemas, setShowSchemas] = useState(false);
+  const [search, setSearch] = useState("");
+
+  if (!result) return null;
+  if (!result.ok) {
+    return (
+      <div className="mcp-result error wide">
+        <strong>MCP test failed</strong>
+        <span>{result.error || "Connection error"}</span>
+      </div>
+    );
+  }
+
+  const details = result.tool_details || (result.tools || []).map((t) => ({ name: t, description: "" }));
+  const filtered = details.filter((item) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      item.name.toLowerCase().includes(q) ||
+      (item.description || "").toLowerCase().includes(q) ||
+      (item.server_name || "").toLowerCase().includes(q)
+    );
+  });
+
+  return (
+    <div className="mcp-result ok wide">
+      <div className="mcp-result-summary">
+        <strong>{result.tool_count ?? details.length} tools available</strong>
+        <div className="mcp-result-buttons">
+          <button
+            type="button"
+            className="link-button"
+            onClick={() => setExpanded((v) => !v)}
+          >
+            {expanded ? "Hide tools list" : "Show tools list"}
+          </button>
+          {expanded && (
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => setShowSchemas((v) => !v)}
+            >
+              {showSchemas ? "Compact view" : "Inspect parameters"}
+            </button>
+          )}
+        </div>
+      </div>
+      {expanded ? (
+        <div className="mcp-details-list">
+          {details.length > 5 && (
+            <input
+              type="search"
+              className="mcp-search-input"
+              placeholder="Search tools..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          )}
+          <div className="mcp-tools-scroll">
+            {filtered.map((tool) => (
+              <div key={tool.name} className="mcp-tool-item">
+                <div className="mcp-tool-head">
+                  <span className="mcp-tool-name">{tool.name}</span>
+                  {tool.server_name && (
+                    <span className="mcp-server-badge">{tool.server_name}</span>
+                  )}
+                </div>
+                {tool.description && (
+                  <p className="mcp-tool-desc">{tool.description}</p>
+                )}
+                {showSchemas && tool.properties && Object.keys(tool.properties).length > 0 && (
+                  <div className="mcp-tool-schema">
+                    <span className="schema-label">Parameters:</span>
+                    <ul className="schema-props">
+                      {Object.entries(tool.properties).map(([propName, propDef]) => (
+                        <li key={propName}>
+                          <code>{propName}</code>
+                          {tool.required?.includes(propName) && (
+                            <span className="required-badge">*</span>
+                          )}
+                          <span className="prop-type">({propDef.type || "string"})</span>
+                          {propDef.description && (
+                            <span className="prop-desc"> - {propDef.description}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ))}
+            {filtered.length === 0 && (
+              <div className="mcp-tool-empty">No tools matched "{search}"</div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <span className="mcp-tools-inline-preview">
+          {(result.tools || []).slice(0, 8).join(", ")}
+          {(result.tools || []).length > 8 ? ` +${(result.tools || []).length - 8} more` : ""}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function McpToolsInspector({ config, flow, updateFlow }) {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [selectedServer, setSelectedServer] = useState("all");
+  const [expandedSchemas, setExpandedSchemas] = useState({});
+
+  const allowlist = Array.isArray(flow.mcp_tool_allowlist)
+    ? flow.mcp_tool_allowlist
+    : String(flow.mcp_tool_allowlist || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+  const isRestricted = allowlist.length > 0 && !allowlist.includes("*");
+
+  const loadTools = useCallback(async (refresh = false) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(API.mcp, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ flow_id: flow.id, refresh }),
+      });
+      const result = await response.json();
+      if (!result.ok) {
+        setError(result.error || "Failed to load MCP tools");
+      } else {
+        setData(result);
+      }
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setLoading(false);
+    }
+  }, [flow.id]);
+
+  useEffect(() => {
+    loadTools(false);
+  }, [loadTools]);
+
+  const allTools = data?.tool_details || (data?.tools || []).map((t) => ({
+    name: t,
+    original_name: t,
+    description: "",
+    server_name: "Default",
+    server_id: "default",
+    properties: {},
+    required: [],
+  }));
+
+  const servers = [
+    { id: "all", name: "All Servers" },
+    ...(data?.servers || []).map((s) => ({ id: s.id, name: s.name })),
+  ];
+
+  const isToolEnabled = (tool) => {
+    if (!isRestricted) return true;
+    return allowlist.includes(tool.name) || (tool.original_name && allowlist.includes(tool.original_name));
+  };
+
+  const toggleTool = (tool) => {
+    const toolKey = tool.name;
+    let nextList;
+    if (!isRestricted) {
+      nextList = allTools
+        .filter((t) => t.name !== toolKey && t.original_name !== tool.original_name)
+        .map((t) => t.name);
+      if (nextList.length === 0) nextList = ["__none__"];
+    } else {
+      const currentlyOn = isToolEnabled(tool);
+      if (currentlyOn) {
+        nextList = allowlist.filter(
+          (k) => k !== tool.name && k !== tool.original_name && k !== "__none__"
+        );
+        if (nextList.length === 0) nextList = ["__none__"];
+      } else {
+        nextList = [...allowlist.filter((k) => k !== "__none__"), tool.name];
+        if (allTools.length > 0 && allTools.every((t) => nextList.includes(t.name) || (t.original_name && nextList.includes(t.original_name)))) {
+          nextList = [];
+        }
+      }
+    }
+    updateFlow((draft) => ({ ...draft, mcp_tool_allowlist: nextList }));
+  };
+
+  const allowAll = () => {
+    updateFlow((draft) => ({ ...draft, mcp_tool_allowlist: [] }));
+  };
+
+  const deselectAll = () => {
+    updateFlow((draft) => ({ ...draft, mcp_tool_allowlist: ["__none__"] }));
+  };
+
+  const toggleSchema = (toolName) => {
+    setExpandedSchemas((prev) => ({ ...prev, [toolName]: !prev[toolName] }));
+  };
+
+  const filteredTools = allTools.filter((tool) => {
+    if (selectedServer !== "all" && tool.server_id !== selectedServer) {
+      return false;
+    }
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      tool.name.toLowerCase().includes(q) ||
+      (tool.original_name || "").toLowerCase().includes(q) ||
+      (tool.description || "").toLowerCase().includes(q) ||
+      (tool.server_name || "").toLowerCase().includes(q)
+    );
+  });
+
+  const activeCount = allTools.filter(isToolEnabled).length;
+
+  return (
+    <div className="mcp-tools-inspector">
+      <div className="mcp-inspector-header">
+        <div className="mcp-inspector-title">
+          <h4>Available MCP Tools</h4>
+          <span className="mcp-counter-badge">
+            {activeCount} of {allTools.length} enabled
+          </span>
+        </div>
+        <div className="mcp-inspector-actions">
+          <Button
+            icon={RefreshCw}
+            variant="secondary"
+            onClick={() => loadTools(true)}
+            disabled={loading}
+          >
+            {loading ? "Checking..." : "Refresh"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="mcp-allowlist-status">
+        <div className="mcp-status-pill">
+          {!isRestricted ? (
+            <span className="pill ok">All tools allowed (unrestricted)</span>
+          ) : (
+            <span className="pill info">Filtered allowlist active ({allowlist.filter((k) => k !== "__none__").length} allowed)</span>
+          )}
+        </div>
+        <div className="mcp-quick-actions">
+          <button type="button" className="action-link" onClick={allowAll} disabled={!isRestricted}>
+            Allow All
+          </button>
+          <span className="action-sep">•</span>
+          <button type="button" className="action-link" onClick={deselectAll} disabled={activeCount === 0}>
+            Deselect All
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mcp-result error wide">
+          <strong>Failed to inspect tools</strong>
+          <span>{error}</span>
+        </div>
+      )}
+
+      {loading && !data && (
+        <div className="empty-state">Querying enabled MCP servers...</div>
+      )}
+
+      {allTools.length > 0 && (
+        <>
+          <div className="mcp-filter-bar">
+            <input
+              type="search"
+              placeholder="Search tools, parameters, descriptions..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="mcp-filter-input"
+            />
+            {servers.length > 2 && (
+              <select
+                value={selectedServer}
+                onChange={(e) => setSelectedServer(e.target.value)}
+                className="mcp-server-select"
+              >
+                {servers.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          <div className="mcp-tools-card-list">
+            {filteredTools.map((tool) => {
+              const enabled = isToolEnabled(tool);
+              const hasParams = tool.properties && Object.keys(tool.properties).length > 0;
+              const schemaOpen = Boolean(expandedSchemas[tool.name]);
+
+              return (
+                <div
+                  key={tool.name}
+                  className={`mcp-tool-card ${enabled ? "tool-active" : "tool-inactive"}`}
+                >
+                  <div className="mcp-tool-row">
+                    <label className="mcp-tool-checkbox-wrap">
+                      <input
+                        type="checkbox"
+                        checked={enabled}
+                        onChange={() => toggleTool(tool)}
+                      />
+                      <span className="mcp-tool-title-wrap">
+                        <strong className="mcp-tool-name">{tool.name}</strong>
+                        {tool.server_name && (
+                          <span className="mcp-server-tag">{tool.server_name}</span>
+                        )}
+                      </span>
+                    </label>
+                    {hasParams && (
+                      <button
+                        type="button"
+                        className="mcp-schema-toggle"
+                        onClick={() => toggleSchema(tool.name)}
+                        title="Toggle parameters schema"
+                      >
+                        {schemaOpen ? "Hide Schema" : `${Object.keys(tool.properties).length} params`}
+                      </button>
+                    )}
+                  </div>
+                  {tool.description && (
+                    <p className="mcp-tool-desc">{tool.description}</p>
+                  )}
+                  {hasParams && schemaOpen && (
+                    <div className="mcp-tool-schema-table">
+                      <div className="schema-table-head">
+                        <span>Parameter</span>
+                        <span>Type</span>
+                        <span>Description</span>
+                      </div>
+                      {Object.entries(tool.properties).map(([pName, pDef]) => (
+                        <div key={pName} className="schema-table-row">
+                          <code className="schema-param-name">
+                            {pName}
+                            {tool.required?.includes(pName) && (
+                              <span className="required-star" title="Required">*</span>
+                            )}
+                          </code>
+                          <span className="schema-param-type">{pDef.type || "string"}</span>
+                          <span className="schema-param-desc">{pDef.description || "—"}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {filteredTools.length === 0 && (
+              <div className="empty-state">No MCP tools matched your search.</div>
+            )}
+          </div>
+        </>
+      )}
+
+      {!loading && allTools.length === 0 && !error && (
+        <div className="empty-state">
+          No tools discovered. Enable one or more MCP integrations to expose tools to this pipeline.
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PipelineView({
   config,
   flow,
@@ -2704,15 +2647,10 @@ function PipelineView({
               <Field label={t("Instructions")} wide>
                 <textarea rows={8} value={flow.instructions} onChange={(event) => updateFlow((draft) => ({ ...draft, instructions: event.target.value }))} />
               </Field>
-              <Toggle
-                checked={!flow.greeting}
-                onChange={(value) => updateFlow((draft) => ({ ...draft, greeting: value ? "" : defaultFlow.greeting }))}
-                label={t("No greeting")}
-              />
-              <Field label={t("Greeting")} wide>
+              <Field label={t("Greeting (optional)")} wide>
                 <input
-                  value={flow.greeting}
-                  disabled={!flow.greeting}
+                  placeholder="Optional initial prompt or greeting"
+                  value={flow.greeting || ""}
                   onChange={(event) => updateFlow((draft) => ({ ...draft, greeting: event.target.value }))}
                 />
               </Field>
@@ -2730,28 +2668,17 @@ function PipelineView({
         )}
 
         {selectedStep?.kind === "web_search" && (
-          <>
-            <div className="form-grid">
-              <Toggle
-                checked={selectedStep.settings?.announce !== false}
-                onChange={(value) =>
-                  updateStep(selectedStep.id, (step) => ({
-                    ...step,
-                    settings: { ...(step.settings || {}), announce: value },
-                  }))
-                }
-                label={t("Announce web search")}
-              />
-              <div className="empty-state wide">
-                When enabled, the system prompt asks the assistant to say "Please hold, I'm checking." before it uses web search.
-              </div>
-            </div>
-          </>
-        )}
-        {selectedStep?.kind === "tools" && (
-          <div className="empty-state">
-            MCP servers are configured globally in Integrations. Enable one or more MCP integrations there to expose tools to this pipeline.
+          <div className="empty-state wide">
+            Google Gemini Search Grounding connects the model to Google Search for live, real-time web facts and information. Configure credentials and model options in the Web Search integration.
           </div>
+        )}
+
+        {selectedStep?.kind === "tools" && (
+          <McpToolsInspector
+            config={config}
+            flow={flow}
+            updateFlow={updateFlow}
+          />
         )}
       </section>
     </div>
@@ -2809,8 +2736,6 @@ function DropSlot({ index, insertStep }) {
 function OfficialFlowComposer({ flow, updateFlow }) {
   const [editorFlow, setEditorFlow] = useState(() => normalizeEditorFlow(flow.conversation_flow, flow.name));
   const [selectedNodeId, setSelectedNodeId] = useState("");
-  const [exampleQuery, setExampleQuery] = useState("");
-  const [exampleId, setExampleId] = useState("home_pizza_mcp");
   const dragRef = useRef(null);
   const enabled = Boolean(flow.conversation_flow?.enabled);
 
@@ -2827,11 +2752,6 @@ function OfficialFlowComposer({ flow, updateFlow }) {
     width: Math.max(960, ...nodes.map((node) => (node.position?.x || 0) + 280)),
     height: Math.max(520, ...nodes.map((node) => (node.position?.y || 0) + 190)),
   };
-  const filteredExamples = flowExampleTemplates.filter((item) => {
-    const query = exampleQuery.trim().toLowerCase();
-    if (!query) return true;
-    return `${item.name} ${item.description}`.toLowerCase().includes(query);
-  });
 
   function commit(nextFlow, nextEnabled = enabled) {
     const normalized = normalizeEditorFlow(nextFlow, flow.name);
@@ -2941,10 +2861,9 @@ function OfficialFlowComposer({ flow, updateFlow }) {
     });
   }
 
-  function loadExample() {
-    const item = flowExampleTemplates.find((example) => example.id === exampleId) || flowExampleTemplates[0];
-    const next = item.flow ? normalizeEditorFlow(item.flow, item.name) : createPassThroughEditorFlow(flow);
-    commit(next, item.id !== "passthrough");
+  function resetPassthrough() {
+    const next = createPassThroughEditorFlow(flow);
+    commit(next, false);
     setSelectedNodeId(next.nodes.find((node) => node.type === "initial")?.id || next.nodes[0]?.id || "");
   }
 
@@ -3037,22 +2956,9 @@ function OfficialFlowComposer({ flow, updateFlow }) {
     <div className="official-flow-composer">
       <div className="flow-toolbar">
         <Toggle checked={enabled} onChange={toggleEnabled} label={enabled ? "Flow enabled" : "Pass-through"} />
-        <div className="example-picker">
-          <input
-            value={exampleQuery}
-            onChange={(event) => setExampleQuery(event.target.value)}
-            placeholder="Filter examples"
-            aria-label="Filter flow examples"
-          />
-          <select value={exampleId} onChange={(event) => setExampleId(event.target.value)}>
-            {filteredExamples.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-          <Button icon={Download} variant="secondary" onClick={loadExample}>
-            Load example
+        <div className="flow-toolbar-actions">
+          <Button icon={RotateCcw} variant="secondary" onClick={resetPassthrough}>
+            Reset to Pass-through
           </Button>
         </div>
       </div>
@@ -3268,298 +3174,6 @@ function OfficialFlowComposer({ flow, updateFlow }) {
             <div className="empty-state">Select a node to edit its Pipecat Flow configuration.</div>
           )}
         </aside>
-      </div>
-    </div>
-  );
-}
-
-function safeJson(value, fallback) {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return fallback;
-  }
-}
-
-function ConversationFlowEditor({ flow, updateFlow }) {
-  const nodes = flow.conversation_flow?.nodes || [];
-  const [selectedNodeId, setSelectedNodeId] = useState(
-    flow.conversation_flow?.initial_node_id || nodes[0]?.id || "",
-  );
-  const selectedNode = nodes.find((node) => node.id === selectedNodeId) || nodes[0];
-
-  function updateConversationFlow(updater) {
-    updateFlow((draft) => {
-      const current = draft.conversation_flow?.nodes?.length
-        ? clone(draft.conversation_flow)
-        : clone(defaultFlow.conversation_flow);
-      draft.conversation_flow = updater(current);
-      return draft;
-    });
-  }
-
-  function updateNode(nodeId, updater) {
-    updateConversationFlow((conversationFlow) => {
-      conversationFlow.nodes = conversationFlow.nodes.map((node) =>
-        node.id === nodeId ? updater(clone(node)) : node,
-      );
-      return conversationFlow;
-    });
-  }
-
-  function addNode() {
-    const id = slugify(`node-${nodes.length + 1}`);
-    updateConversationFlow((conversationFlow) => {
-      conversationFlow.nodes.push({
-        id,
-        label: "New node",
-        role_message: flow.instructions,
-        task: "Continue the conversation.",
-        functions: [],
-      });
-      return conversationFlow;
-    });
-    setSelectedNodeId(id);
-  }
-
-  function removeNode(nodeId) {
-    if (nodes.length <= 1) return;
-    updateConversationFlow((conversationFlow) => {
-      conversationFlow.nodes = conversationFlow.nodes.filter((node) => node.id !== nodeId);
-      if (conversationFlow.initial_node_id === nodeId) {
-        conversationFlow.initial_node_id = conversationFlow.nodes[0]?.id || "";
-      }
-      return conversationFlow;
-    });
-    setSelectedNodeId(nodes.find((node) => node.id !== nodeId)?.id || "");
-  }
-
-  function addFunction() {
-    if (!selectedNode) return;
-    updateNode(selectedNode.id, (node) => {
-      node.functions = node.functions || [];
-      node.functions.push({
-        name: slugify(`function-${node.functions.length + 1}`).replaceAll("-", "_"),
-        description: "Continue the flow.",
-        properties: {},
-        required: [],
-        next_node_id: "",
-        mcp_tool: "",
-      });
-      return node;
-    });
-  }
-
-  function updateFunction(index, updater) {
-    updateNode(selectedNode.id, (node) => {
-      node.functions = (node.functions || []).map((fn, fnIndex) =>
-        fnIndex === index ? updater(clone(fn)) : fn,
-      );
-      return node;
-    });
-  }
-
-  function removeFunction(index) {
-    updateNode(selectedNode.id, (node) => {
-      node.functions = (node.functions || []).filter((_, fnIndex) => fnIndex !== index);
-      return node;
-    });
-  }
-
-  function loadPizzaExample() {
-    updateConversationFlow(() => clone(pizzaConversationFlow));
-    setSelectedNodeId(pizzaConversationFlow.initial_node_id);
-  }
-
-  function resetPassthrough() {
-    const next = { ...clone(defaultFlow.conversation_flow), enabled: true };
-    updateConversationFlow(() => next);
-    setSelectedNodeId(next.initial_node_id);
-  }
-
-  return (
-    <div className="flow-editor">
-      <div className="section-title">
-        <strong>Visual composer</strong>
-        <span>FlowManager for composed realtime pipelines</span>
-        <div className="button-row">
-          <Button icon={RotateCcw} variant="secondary" onClick={resetPassthrough}>
-            Pass-through
-          </Button>
-          <Button icon={Workflow} variant="secondary" onClick={loadPizzaExample}>
-            Load pizza example
-          </Button>
-        </div>
-      </div>
-      <div className="form-grid">
-        <Toggle
-          checked={flow.conversation_flow?.enabled}
-          onChange={(value) =>
-            updateConversationFlow((conversationFlow) => ({ ...conversationFlow, enabled: value }))
-          }
-          label="Enabled"
-        />
-        <Field label="Initial node">
-          <select
-            value={flow.conversation_flow?.initial_node_id || nodes[0]?.id || ""}
-            onChange={(event) =>
-              updateConversationFlow((conversationFlow) => ({
-                ...conversationFlow,
-                initial_node_id: event.target.value,
-              }))
-            }
-          >
-            {nodes.map((node) => (
-              <option key={node.id} value={node.id}>
-                {node.label || node.id}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
-      <div className="flow-graph">
-        {nodes.map((node, index) => (
-          <React.Fragment key={node.id}>
-            <button
-              className={selectedNode?.id === node.id ? `graph-node active tone-${index % 5}` : `graph-node tone-${index % 5}`}
-              onClick={() => setSelectedNodeId(node.id)}
-            >
-              <strong>{node.label || node.id}</strong>
-              <span>{(node.functions || []).map((fn) => fn.next_node_id).filter(Boolean).join(", ") || "pass-through"}</span>
-            </button>
-            {index < nodes.length - 1 && <ArrowRight size={16} />}
-          </React.Fragment>
-        ))}
-      </div>
-
-      <div className="flow-node-grid">
-        <div className="flow-node-list">
-          {nodes.map((node, index) => (
-            <button
-              key={node.id}
-              className={selectedNode?.id === node.id ? `flow-node active tone-${index % 5}` : `flow-node tone-${index % 5}`}
-              onClick={() => setSelectedNodeId(node.id)}
-            >
-              <strong>{node.label || node.id}</strong>
-              <span>{(node.functions || []).length} functions</span>
-            </button>
-          ))}
-          <button className="flow-node add-node" onClick={addNode}>
-            <Plus size={16} />
-            <strong>Add node</strong>
-          </button>
-        </div>
-
-        {selectedNode && (
-          <div className="flow-node-detail">
-            <div className="form-grid">
-              <Field label="Label">
-                <input
-                  value={selectedNode.label || ""}
-                  onChange={(event) => updateNode(selectedNode.id, (node) => ({ ...node, label: event.target.value }))}
-                />
-              </Field>
-              <Field label="ID">
-                <input value={selectedNode.id} readOnly />
-              </Field>
-              <Field label="Role" wide>
-                <textarea
-                  rows={3}
-                  value={selectedNode.role_message || ""}
-                  onChange={(event) =>
-                    updateNode(selectedNode.id, (node) => ({ ...node, role_message: event.target.value }))
-                  }
-                />
-              </Field>
-              <Field label="Task" wide>
-                <textarea
-                  rows={3}
-                  value={selectedNode.task || ""}
-                  onChange={(event) => updateNode(selectedNode.id, (node) => ({ ...node, task: event.target.value }))}
-                />
-              </Field>
-            </div>
-
-            <div className="section-title">
-              <strong>Functions</strong>
-              <Button icon={Plus} variant="secondary" onClick={addFunction}>
-                Add
-              </Button>
-            </div>
-            {(selectedNode.functions || []).map((fn, index) => (
-              <div className="function-row" key={`${selectedNode.id}-${index}`}>
-                <div className="form-grid">
-                  <Field label="Name">
-                    <input
-                      value={fn.name || ""}
-                      onChange={(event) => updateFunction(index, (item) => ({ ...item, name: event.target.value }))}
-                    />
-                  </Field>
-                  <Field label="Next node">
-                    <select
-                      value={fn.next_node_id || ""}
-                      onChange={(event) => updateFunction(index, (item) => ({ ...item, next_node_id: event.target.value }))}
-                    >
-                      <option value="">Stay</option>
-                      {nodes.map((node) => (
-                        <option key={node.id} value={node.id}>
-                          {node.label || node.id}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="MCP tool">
-                    <input
-                      value={fn.mcp_tool || ""}
-                      onChange={(event) => updateFunction(index, (item) => ({ ...item, mcp_tool: event.target.value }))}
-                    />
-                  </Field>
-                  <Field label="Required">
-                    <input
-                      value={(fn.required || []).join(", ")}
-                      onChange={(event) =>
-                        updateFunction(index, (item) => ({
-                          ...item,
-                          required: event.target.value
-                            .split(",")
-                            .map((value) => value.trim())
-                            .filter(Boolean),
-                        }))
-                      }
-                    />
-                  </Field>
-                  <Field label="Description" wide>
-                    <input
-                      value={fn.description || ""}
-                      onChange={(event) =>
-                        updateFunction(index, (item) => ({ ...item, description: event.target.value }))
-                      }
-                    />
-                  </Field>
-                  <Field label="Parameters JSON" wide>
-                    <textarea
-                      rows={5}
-                      value={JSON.stringify(fn.properties || {}, null, 2)}
-                      onChange={(event) =>
-                        updateFunction(index, (item) => ({
-                          ...item,
-                          properties: safeJson(event.target.value, item.properties || {}),
-                        }))
-                      }
-                    />
-                  </Field>
-                </div>
-                <Button icon={Trash2} variant="danger" onClick={() => removeFunction(index)}>
-                  Remove
-                </Button>
-              </div>
-            ))}
-            <Button icon={Trash2} variant="danger" onClick={() => removeNode(selectedNode.id)} disabled={nodes.length <= 1}>
-              Remove node
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -3866,12 +3480,7 @@ function IntegrationSettings({
                 : "MCP token is not available."}
           </span>
         </div>
-        {visibleMcpResult && (
-          <div className={visibleMcpResult.ok ? "mcp-result ok wide" : "mcp-result error wide"}>
-            <strong>{visibleMcpResult.ok ? `${visibleMcpResult.tool_count} tools available` : "MCP test failed"}</strong>
-            <span>{visibleMcpResult.ok ? (visibleMcpResult.tools || []).slice(0, 8).join(", ") : visibleMcpResult.error}</span>
-          </div>
-        )}
+        <McpResultDetails result={visibleMcpResult} />
         {manualMcpOpen && (
           <>
             <TextSetting integration={integration} field="base_url" label="Manual MCP URL" updateIntegration={updateIntegration} wide />
@@ -3911,12 +3520,7 @@ function IntegrationSettings({
             <span>{integration.base_url || integration.endpoint}</span>
           </div>
         )}
-        {visibleMcpResult && (
-          <div className={visibleMcpResult.ok ? "mcp-result ok wide" : "mcp-result error wide"}>
-            <strong>{visibleMcpResult.ok ? `${visibleMcpResult.tool_count} tools available` : "MCP test failed"}</strong>
-            <span>{visibleMcpResult.ok ? (visibleMcpResult.tools || []).slice(0, 8).join(", ") : visibleMcpResult.error}</span>
-          </div>
-        )}
+        <McpResultDetails result={visibleMcpResult} />
         {manualMcpOpen && (
           <TextSetting integration={integration} field="base_url" label={t("MCP server URL")} updateIntegration={updateIntegration} wide />
         )}
@@ -3943,6 +3547,12 @@ function IntegrationSettings({
       <SettingsSection title={kindLabel(integration.kind)}>
         <TextSetting integration={integration} field="base_url" label="MCP server URL" updateIntegration={updateIntegration} wide />
         <SecretSetting integration={integration} field="token" label="Bearer token" updateIntegration={updateIntegration} wide />
+        <McpResultDetails result={visibleMcpResult} />
+        <div className="button-row wide">
+          <Button icon={RefreshCw} variant="secondary" onClick={() => checkIntegrationMcp?.(integration.id)}>
+            Test MCP
+          </Button>
+        </div>
         <div className="empty-state wide">
           Enable multiple MCP integrations to expose all of their tools to Pipecat Assist. Home Assistant MCP keeps original tool names; additional servers are prefixed automatically.
         </div>
@@ -4065,8 +3675,9 @@ function LanguageSetting({ integration, updateIntegration }) {
     <Field label="Language">
       <input
         autoComplete="off"
-        value={integration.language || "en"}
-        onChange={(event) => updateIntegration(integration.id, (item) => ({ ...item, language: event.target.value || "en" }))}
+        placeholder="Auto (optional BCP-47 code, e.g. en, es, de)"
+        value={integration.language || ""}
+        onChange={(event) => updateIntegration(integration.id, (item) => ({ ...item, language: event.target.value }))}
       />
     </Field>
   );
@@ -4743,7 +4354,8 @@ function VoiceTest({ config, flow }) {
       localSpeechEndingRef.current = false;
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = String(navigator.language || UI_LOCALE || "en").replace("_", "-");
+      const speechLang = flow?.language || (typeof navigator !== "undefined" ? navigator.language : "");
+      if (speechLang) recognition.lang = String(speechLang).replace("_", "-");
       recognition.onresult = (event) => {
         if (localSpeechPausedForAssistantRef.current || assistantTurnActiveRef.current || botSpeakingRef.current) return;
         let finalText = "";
@@ -5304,7 +4916,7 @@ function VoiceTest({ config, flow }) {
             flow_id: flow.id,
             source: "ui_voice_test",
             client_id: browserClientId(),
-            language: navigator.language || UI_LOCALE || "en",
+            language: flow.language || "",
           },
         }),
       });

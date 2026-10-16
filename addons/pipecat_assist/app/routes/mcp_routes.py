@@ -7,6 +7,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request
 
 from app.mcp_bridge import (
+    check_combined_mcp,
     check_mcp,
     clear_mcp_call_history,
     clear_mcp_tools_cache,
@@ -30,10 +31,21 @@ async def api_check_mcp(payload: dict[str, Any] | None = None):
     refresh = bool(payload.get("refresh", True))
     if refresh:
         clear_mcp_tools_cache()
+    servers = config.enabled_mcp_servers(config.effective_mcp_token)
+    if servers:
+        return await check_combined_mcp(
+            servers,
+            flow.mcp_tool_allowlist,
+            cache_enabled=config.mcp_tools_cache_enabled,
+            cache_ttl_seconds=config.mcp_tools_cache_ttl_seconds,
+            refresh=refresh,
+        )
     return await check_mcp(
         config.effective_mcp_url,
         config.effective_mcp_token,
         flow.mcp_tool_allowlist,
+        server_id="ha-mcp",
+        server_name="Home Assistant MCP",
         cache_enabled=config.mcp_tools_cache_enabled,
         cache_ttl_seconds=config.mcp_tools_cache_ttl_seconds,
         refresh=refresh,

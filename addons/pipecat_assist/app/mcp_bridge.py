@@ -312,7 +312,7 @@ class HomeAssistantMCPBridge:
                 url=self.url,
                 headers=headers,
             ),
-            tools_filter=self.tool_allowlist or None,
+            tools_filter=None,
         )
         await self.client.start()
         logger.info("Connected to {} at {}", self.name, self.url)
@@ -373,7 +373,7 @@ class HomeAssistantMCPBridge:
 
         if not self.client:
             raise RuntimeError("MCP bridge is not started")
-        cache_key = (self.url, tuple(self.tool_allowlist))
+        cache_key = (self.url, ())
         cached = MCP_TOOLS_SCHEMA_CACHE.get(cache_key)
         now = time.time()
         if (
@@ -383,12 +383,20 @@ class HomeAssistantMCPBridge:
             and (cache_ttl_seconds <= 0 or now - cached[1] <= cache_ttl_seconds)
         ):
             logger.debug("Using cached MCP tool schema for {} at {}", self.name, self.url)
-            return cached[0]
+            tools = cached[0]
+        else:
+            tools = _sanitize_tools_schema(await self.client.get_tools_schema())
+            if cache_enabled:
+                MCP_TOOLS_SCHEMA_CACHE[cache_key] = (tools, now)
 
-        tools = _sanitize_tools_schema(await self.client.get_tools_schema())
-        if cache_enabled:
-            MCP_TOOLS_SCHEMA_CACHE[cache_key] = (tools, now)
-        return tools
+        allowlist_set = {item.strip() for item in self.tool_allowlist if item and item.strip()}
+        if not allowlist_set:
+            return tools
+        return ToolsSchema(
+            standard_tools=[
+                tool for tool in tools.standard_tools if tool.name in allowlist_set
+            ]
+        )
 
     async def register_tools_schema(self, tools: ToolsSchema, llm: LLMService) -> None:
         """Register MCP tools with a Pipecat LLM service."""
@@ -418,6 +426,33 @@ class HomeAssistantMCPBridge:
             _finish_history_item(history_item, started, ok=False, error=str(err))
             raise
 
+
+def _tool_detail_dict(
+    tool: FunctionSchema,
+    *,
+    public_name: str = "",
+    original_name: str = "",
+    server_id: str = "",
+    server_name: str = "",
+    raw_description: str = "",
+    enabled: bool = True,
+) -> dict[str, Any]:
+    properties = _sanitize_tool_properties(tool.properties)
+    required = [
+        name
+        for name in (tool.required or [])
+        if isinstance(name, str) and name in properties
+    ]
+    return {
+        "name": public_name or tool.name,
+        "original_name": original_name or tool.name,
+        "server_id": server_id,
+        "server_name": server_name,
+        "description": raw_description if raw_description else (tool.description or ""),
+        "properties": properties,
+        "required": required,
+        "enabled": enabled,
+    }
 
 
 class CombinedMCPBridge:
@@ -451,7 +486,7 @@ class CombinedMCPBridge:
             bridge = HomeAssistantMCPBridge(
                 str(spec.get("url") or ""),
                 str(spec.get("token") or ""),
-                self.tool_allowlist,
+                None,
                 name=str(spec.get("name") or spec.get("id") or "MCP Server"),
             )
             try:
@@ -495,6 +530,7 @@ class CombinedMCPBridge:
         if not self.bridges:
             raise RuntimeError("MCP bridge is not started")
 
+        allowlist_set = {item.strip() for item in self.tool_allowlist if item and item.strip()}
         public_tools: list[FunctionSchema] = []
         routes: dict[str, tuple[HomeAssistantMCPBridge, str]] = {}
         seen: set[str] = set()
@@ -515,6 +551,8 @@ class CombinedMCPBridge:
                 if public_name in seen:
                     public_name = f"{prefix}_{len(seen)}__{original_name}"
                 seen.add(public_name)
+                if allowlist_set and public_name not in allowlist_set and original_name not in allowlist_set:
+                    continue
                 routes[public_name] = (bridge, original_name)
                 public_properties = _sanitize_tool_properties(tool.properties)
                 public_tools.append(
@@ -564,27 +602,155 @@ async def check_mcp(
     token: str,
     tool_allowlist: Sequence[str] | None = None,
     *,
+    server_id: str = "",
+    server_name: str = "Home Assistant MCP",
     cache_enabled: bool = True,
     cache_ttl_seconds: int = 300,
     refresh: bool = False,
 ) -> dict[str, Any]:
-    """Probe MCP connectivity for the status endpoint."""
+    """Probe MCP connectivity for a single server and return full tool schema details."""
 
+    allowlist_set = {item.strip() for item in (tool_allowlist or []) if item and item.strip()}
     try:
-        async with HomeAssistantMCPBridge(url, token, tool_allowlist) as bridge:
+        async with HomeAssistantMCPBridge(url, token, None, name=server_name) as bridge:
             tools = await bridge.tools_schema(
                 cache_enabled=cache_enabled,
                 cache_ttl_seconds=cache_ttl_seconds,
                 refresh=refresh,
             )
+            tool_details = [
+                _tool_detail_dict(
+                    tool,
+                    public_name=tool.name,
+                    original_name=tool.name,
+                    server_id=server_id,
+                    server_name=server_name,
+                    raw_description=tool.description or "",
+                    enabled=(not allowlist_set or tool.name in allowlist_set),
+                )
+                for tool in tools.standard_tools
+            ]
+            active_tools = [item["name"] for item in tool_details if item["enabled"]]
             return {
                 "ok": True,
-                "tool_count": len(tools.standard_tools),
-                "tools": [tool.name for tool in tools.standard_tools[:50]],
+                "tool_count": len(tool_details),
+                "active_tool_count": len(active_tools),
+                "tools": [item["name"] for item in tool_details],
+                "active_tools": active_tools,
+                "tool_details": tool_details,
             }
     except asyncio.CancelledError as err:
         logger.warning("MCP check was cancelled: {}", err)
-        return {"ok": False, "error": "MCP check was cancelled", "tool_count": 0, "tools": []}
+        return {
+            "ok": False,
+            "error": "MCP check was cancelled",
+            "tool_count": 0,
+            "active_tool_count": 0,
+            "tools": [],
+            "active_tools": [],
+            "tool_details": [],
+        }
     except Exception as err:
         logger.warning("MCP check failed: {}", err)
-        return {"ok": False, "error": str(err), "tool_count": 0, "tools": []}
+        return {
+            "ok": False,
+            "error": str(err),
+            "tool_count": 0,
+            "active_tool_count": 0,
+            "tools": [],
+            "active_tools": [],
+            "tool_details": [],
+        }
+
+
+async def check_combined_mcp(
+    servers: Sequence[dict[str, Any]],
+    tool_allowlist: Sequence[str] | None = None,
+    *,
+    cache_enabled: bool = True,
+    cache_ttl_seconds: int = 300,
+    refresh: bool = False,
+) -> dict[str, Any]:
+    """Probe all enabled MCP servers and return combined tool schemas and allowlist state."""
+
+    allowlist_set = {item.strip() for item in (tool_allowlist or []) if item and item.strip()}
+    server_results: list[dict[str, Any]] = []
+    errors: list[str] = []
+    tool_details: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for spec in servers:
+        server_id = str(spec.get("id") or "")
+        server_name = str(spec.get("name") or server_id or "MCP Server")
+        url = str(spec.get("url") or "")
+        token = str(spec.get("token") or "")
+        prefer_unprefixed = bool(spec.get("prefer_unprefixed"))
+        prefix = _tool_prefix(server_id or server_name)
+
+        try:
+            async with HomeAssistantMCPBridge(url, token, None, name=server_name) as bridge:
+                schema = await bridge.tools_schema(
+                    cache_enabled=cache_enabled,
+                    cache_ttl_seconds=cache_ttl_seconds,
+                    refresh=refresh,
+                )
+                for tool in schema.standard_tools:
+                    original_name = tool.name
+                    public_name = original_name
+                    if not prefer_unprefixed or public_name in seen:
+                        public_name = f"{prefix}__{original_name}"
+                    if public_name in seen:
+                        public_name = f"{prefix}_{len(seen)}__{original_name}"
+                    seen.add(public_name)
+                    enabled = (
+                        not allowlist_set
+                        or public_name in allowlist_set
+                        or original_name in allowlist_set
+                    )
+                    tool_details.append(
+                        _tool_detail_dict(
+                            tool,
+                            public_name=public_name,
+                            original_name=original_name,
+                            server_id=server_id,
+                            server_name=server_name,
+                            raw_description=tool.description or "",
+                            enabled=enabled,
+                        )
+                    )
+                server_results.append(
+                    {
+                        "id": server_id,
+                        "name": server_name,
+                        "url": url,
+                        "ok": True,
+                        "tool_count": len(schema.standard_tools),
+                    }
+                )
+        except asyncio.CancelledError as err:
+            msg = f"{server_name}: MCP check was cancelled ({err})"
+            errors.append(msg)
+            server_results.append(
+                {"id": server_id, "name": server_name, "url": url, "ok": False, "error": msg, "tool_count": 0}
+            )
+        except Exception as err:
+            msg = f"{server_name}: {err}"
+            errors.append(msg)
+            server_results.append(
+                {"id": server_id, "name": server_name, "url": url, "ok": False, "error": str(err), "tool_count": 0}
+            )
+
+    any_ok = any(item.get("ok") for item in server_results)
+    active_tools = [item["name"] for item in tool_details if item["enabled"]]
+    return {
+        "ok": any_ok,
+        "error": "; ".join(errors) if errors and not any_ok else "",
+        "warnings": errors if errors and any_ok else [],
+        "servers": server_results,
+        "tool_count": len(tool_details),
+        "active_tool_count": len(active_tools),
+        "tools": [item["name"] for item in tool_details],
+        "active_tools": active_tools,
+        "tool_details": tool_details,
+    }
+

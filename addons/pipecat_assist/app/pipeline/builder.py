@@ -24,7 +24,6 @@ from app.config import (
     RuntimeConfig,
 )
 from app.services.google_credentials import _require_integration
-from app.state import CONVERSATION_END_SYSTEM_HINT
 from app.web_search_tool import run_gemini_web_search, web_search_schema
 
 
@@ -33,13 +32,17 @@ def _runtime_language(
     integration: IntegrationConfig | None,
     override: str | None = None,
 ) -> str:
-    return (override or "").strip() or (integration.language if integration else "") or flow.language or "en"
+    return (
+        (override or "").strip()
+        or ((integration.language or "").strip() if integration else "")
+        or (flow.language or "").strip()
+    )
 
 
-def _pipecat_language(language: str | None) -> Language | str:
+def _pipecat_language(language: str | None) -> Language | str | None:
     value = (language or "").strip()
     if not value or value.lower() == "pipecat-assist":
-        value = "en"
+        return None
     normalized = value.replace("_", "-").lower()
     for candidate in Language:
         if candidate.value.lower() == normalized:
@@ -104,23 +107,8 @@ def _memory_enabled(config: RuntimeConfig, flow: FlowConfig) -> bool:
     return config.session_memory_enabled and (flow.memory_enabled or memory_step is not None)
 
 
-def _web_search_announces(flow: FlowConfig) -> bool:
-    step = _enabled_web_search_step(flow)
-    if not step:
-        return False
-    return bool((step.settings or {}).get("announce", True))
-
-
 def _effective_instructions(flow: FlowConfig) -> str:
-    instructions = flow.instructions
-    if CONVERSATION_END_SYSTEM_HINT not in instructions:
-        instructions += f"\n\n{CONVERSATION_END_SYSTEM_HINT}"
-    if _web_search_announces(flow):
-        instructions += (
-            "\n\nWhen you decide to use web search, first say "
-            '"Please hold, I\'m checking." Then run the search and answer briefly.'
-        )
-    return instructions
+    return flow.instructions
 
 
 def _web_search_tool_schema(config: RuntimeConfig, flow: FlowConfig) -> FunctionSchema | None:
@@ -432,7 +420,6 @@ def _gemini_live_service(
         "model": _gemini_model(model),
         "system_instruction": _effective_instructions(flow),
         "voice": _gemini_voice(flow, integration),
-        "language": _runtime_language(flow, integration) or "en-US",
     }
     if _enabled_step(flow, "vad"):
         settings_kwargs["vad"] = _gemini_vad(
@@ -469,13 +456,14 @@ def _build_stt_service(
     if integration.kind == "google_cloud_stt":
         from pipecat.services.google.stt import GoogleSTTService
 
+        stt_settings: dict[str, Any] = {"model": model or None}
+        pipecat_lang = _pipecat_language(language)
+        if pipecat_lang is not None:
+            stt_settings["language"] = pipecat_lang
         return GoogleSTTService(
             credentials=integration.credentials_json or None,
             credentials_path=integration.credentials_path or None,
-            settings=GoogleSTTService.Settings(
-                model=model or None,
-                language=_pipecat_language(language) if language else "en-US",
-            ),
+            settings=GoogleSTTService.Settings(**stt_settings),
         )
 
     raise RuntimeError(f"STT provider {integration.kind} is not supported by composed runtime")

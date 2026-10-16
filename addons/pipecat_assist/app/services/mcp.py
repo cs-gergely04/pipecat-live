@@ -192,12 +192,22 @@ async def _check_integration_mcp(
         url, token = _mcp_endpoint_for_integration(integration)
 
     if not _is_http_endpoint(url):
-        return {"ok": False, "error": "MCP server URL is missing.", "tool_count": 0, "tools": []}
+        return {
+            "ok": False,
+            "error": "MCP server URL is missing.",
+            "tool_count": 0,
+            "active_tool_count": 0,
+            "tools": [],
+            "active_tools": [],
+            "tool_details": [],
+        }
 
     return await check_mcp(
         url,
         token,
         flow.mcp_tool_allowlist,
+        server_id=integration.id,
+        server_name=integration.name,
         cache_enabled=config.mcp_tools_cache_enabled,
         cache_ttl_seconds=config.mcp_tools_cache_ttl_seconds,
         refresh=refresh,

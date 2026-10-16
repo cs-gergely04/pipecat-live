@@ -35,10 +35,6 @@ TTS_MEDIA_TYPES = {
     "pcm": "audio/L16",
     "wav": "audio/wav",
 }
-CONVERSATION_END_SYSTEM_HINT = (
-    "If the user clearly ends the conversation, briefly acknowledge it and do not ask "
-    "a follow-up question. The client will close the microphone after your farewell."
-)
 HA_STT_BRIDGE_KINDS = {
     "gemini",
     "gemini_cloud",

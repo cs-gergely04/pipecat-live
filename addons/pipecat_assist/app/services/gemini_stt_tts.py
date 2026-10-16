@@ -645,7 +645,7 @@ def _start_tts_prefetch(
     _prune_tts_prefetch()
     payload = {
         "text": text,
-        "language": language or flow.language or "en",
+        "language": language or flow.language or "",
         "options": {"preferred_format": "mp3"},
         "flow_id": flow.id,
     }

@@ -42,7 +42,7 @@ class IntegrationConfig(BaseModel):
     token: str = ""
     base_url: str = ""
     endpoint: str = ""
-    language: str = "en"
+    language: str = ""
     speed: float = Field(default=1.0, ge=0.25, le=1.5)
     tts_streaming_mode: Literal["sentence", "token"] = "sentence"
     default_model: str = ""
@@ -104,9 +104,9 @@ class FlowConfig(BaseModel):
     text_model: str = DEFAULT_GEMINI_TEXT_MODEL
     voice: str = DEFAULT_GEMINI_LIVE_VOICE
     speed: float = Field(default=1.0, ge=0.25, le=1.5)
-    language: str | None = "en"
+    language: str | None = ""
     instructions: str = DEFAULT_INSTRUCTIONS
-    greeting: str = "Greet the user briefly and wait for their request."
+    greeting: str = ""
     transcription_model: str = "gemini-live"
     noise_reduction: Literal["off", "near_field", "far_field"] = "near_field"
     vad_mode: Literal["semantic_vad", "server_vad"] = "semantic_vad"
