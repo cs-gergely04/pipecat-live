@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 
 import httpx
 from loguru import logger
-from openai import AsyncOpenAI
 from pipecat.adapters.schemas.function_schema import FunctionSchema
 
 from app.config import DEFAULT_GEMINI_TEXT_MODEL
@@ -18,27 +17,6 @@ if TYPE_CHECKING:
 
 WEB_SEARCH_TOOL_NAME = "web_search"
 SearchRunner = Callable[[str], Awaitable[str]]
-
-
-async def run_openai_web_search(api_key: str, model: str, query: str) -> str:
-    """Run a short OpenAI Responses web search answer."""
-
-    query = (query or "").strip()
-    if not query:
-        return "No search query was provided."
-
-    client = AsyncOpenAI(api_key=api_key)
-    response = await client.responses.create(
-        model=model,
-        tools=[{"type": "web_search"}],
-        tool_choice="required",
-        input=(
-            "Answer in at most 2 short sentences suitable for being read aloud, "
-            "in the same language as the question. Do not include URLs, citations, "
-            f"or markdown. Question: {query}"
-        ),
-    )
-    return (getattr(response, "output_text", "") or "").strip() or "I could not find a useful web result."
 
 
 async def run_gemini_web_search(api_key: str, model: str, query: str) -> str:

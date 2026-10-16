@@ -37,11 +37,9 @@ device control through MCP.
 - **Custom pipeline builder** for speech-to-speech and composed realtime flows:
   mix STT, LLM, TTS, memory, web search, Home Assistant tools, and Pipecat
   Flows in one runtime profile.
-- **Cloud provider integrations** for Gemini, OpenAI, Soniox, Deepgram,
-  Speechmatics, Cartesia, Gradium, ElevenLabs, Google Cloud TTS, AWS Bedrock,
-  AWS Nova Sonic, and OpenAI-compatible endpoints.
-- **Local AI options** through Ollama, local runtime endpoints, and custom
-  OpenAI-compatible services.
+- **Google Gemini & Google Cloud integrations** for Gemini Live, Gemini Cloud
+  (LLM, audio transcription, and TTS), Google Cloud STT, Google Cloud TTS
+  (HTTP and Streaming), and Google Imagen.
 - **Multiple MCP servers**, including the built-in Home Assistant MCP server,
   the Home Assistant MCP add-on, and additional custom MCP endpoints.
 - **Visual Pipecat Flow editing** for composed realtime pipelines, including
@@ -49,7 +47,7 @@ device control through MCP.
 - **Audio debugging, session memory, and web search** as first-class runtime
   features rather than hidden provider toggles.
 - **Home Assistant AI Tasks support** for generated data and image-generation
-  tasks, using dedicated image providers such as Google Imagen or fal.
+  tasks using Google Imagen.
 
 ## Where you can use it
 
@@ -70,11 +68,10 @@ device control through MCP.
   remains available for standalone `pipecat-esp32` firmware.
 
 The Home Assistant Assist path uses an advanced Pipecat Live Bridge so HA
-Assist can talk to speech-to-speech realtime assistants such as Gemini Live and
-OpenAI Realtime. Because HA Assist itself is still not a full-duplex WebRTC
-client, this bridge cannot provide true barge-in while the assistant is
-speaking. The Lovelace card and add-on assistant card remain the more
-responsive realtime experience.
+Assist can talk to speech-to-speech realtime assistants such as Gemini Live.
+Because HA Assist itself is still not a full-duplex WebRTC client, this bridge
+cannot provide true barge-in while the assistant is speaking. The Lovelace card
+and add-on assistant card remain the more responsive realtime experience.
 
 ## Installation
 
@@ -110,17 +107,16 @@ responsive realtime experience.
 
 7. Optional: where your Home Assistant version exposes **AI Tasks** or **AI
    Actions**, select **Pipecat Assist** for LLM task handling, generated data,
-   and image generation. Configure **Integrations > Google Imagen** or
-   **Integrations > fal Image Generation** in the add-on, then choose the image
-   provider in **Runtime > Image task provider** when you want a specific
-   backend instead of the first enabled one.
+   and image generation. Configure **Integrations > Google Imagen** in the
+   add-on, then choose the image provider in **Runtime > Image task provider**
+   when you want a specific backend instead of the first enabled one.
 
 8. Open the Pipecat Assist add-on UI and configure a provider:
 
    - Easiest start: create a Google AI Studio API key and paste it into
      **Integrations > Google Gemini Live**.
-   - Advanced setup: create or edit a custom pipeline with your preferred cloud
-     providers, local AI endpoints, and MCP servers.
+   - Advanced setup: create or edit a composed pipeline with Google Cloud STT,
+     Google Gemini Cloud, Google Cloud TTS, and MCP servers.
 
 9. Add the **Pipecat Assist** Lovelace card to a dashboard and start talking.
 
@@ -160,8 +156,8 @@ flowchart LR
     Browser["HA Ingress UI"] --> Addon
     HAConv["HA Assist bridge"] -->|"Conversation / STT / TTS HTTP bridge"| Addon
     Lovelace["Lovelace card"] -->|"WebRTC /api/offer"| Addon
-    Addon -->|"Pipecat S2S"| Realtime["Gemini Live / OpenAI Realtime / AWS Nova Sonic"]
-    Addon -->|"Pipecat composed realtime"| Cascade["STT + LLM + TTS"]
+    Addon -->|"Pipecat S2S"| Realtime["Google Gemini Live"]
+    Addon -->|"Pipecat composed realtime"| Cascade["Google STT + Gemini Cloud + Google TTS"]
     Cascade --> Flow["Pipecat Flows"]
     Addon -->|"Streamable HTTP /api/mcp"| HAMCP["Home Assistant MCP Server"]
     HAMCP --> Assist["HA Assist APIs and exposed entities"]
@@ -174,14 +170,12 @@ flowchart LR
    normal Home Assistant add-on install, Pipecat Assist uses the Supervisor
    token automatically.
 3. Configure model providers. Gemini Live is the default, and additional
-   providers such as OpenAI, Soniox, Deepgram, Cartesia, Gradium, Speechmatics,
-   AWS, ElevenLabs, Google Cloud TTS HTTP fallback/Streaming,
-   OpenAI-compatible endpoints, Ollama, local runtimes, and Web Search can be
-   added from **Integrations**.
-4. Choose or create a pipeline. The built-in catalog includes realtime
-   speech-to-speech profiles and composed realtime profiles such as
-   `Soniox + OpenAI + Cartesia`, `Deepgram + Gemini + Google TTS`, and
-   `Speechmatics + AWS Nova Pro + ElevenLabs`.
+   Google providers (`Google Gemini Cloud`, `Google Cloud STT`,
+   `Google Cloud TTS HTTP`, `Google Cloud TTS Streaming`, `Google Imagen`, and
+   `Web Search`) can be configured from **Integrations**.
+4. Choose or create a pipeline. The built-in catalog includes the realtime
+   speech-to-speech `Gemini Live` profile and the composed realtime
+   `Google STT + Gemini + Google TTS` profile.
 5. For ESPHome, add the bundled `va_pipecat` external component and enable
    `api.custom_services`. The add-on discovers and provisions the satellite
    automatically. **Runtime > ESPHome satellite** also exposes a manual
@@ -200,37 +194,35 @@ integration. Use Bearer tokens only for custom MCP servers that explicitly
 require one.
 
 Gemini Live is the default first-run pipeline. Add a Google AI Studio key in
-**Integrations > Google Gemini Live**, keep
-`models/gemini-3.1-flash-live-preview` as the realtime model, and use
-**Assistant > Start voice test** to verify the browser voice path. The Home
-Assistant Assist bridge is best-effort compatibility with the classic HA
-Assist path; configure a composed pipeline for STT/TTS, install
-`custom_components/pipecat_assist`, add the **Pipecat Assist** integration, and
-select **Pipecat Assist** for Conversation, Speech-to-text, and Text-to-speech.
+**Integrations > Google Gemini Live**, keep `gemini-3.8-live` as the realtime
+model, and use **Assistant > Start voice test** to verify the browser voice
+path. The Home Assistant Assist bridge is best-effort compatibility with the
+classic HA Assist path; install `custom_components/pipecat_assist`, add the
+**Pipecat Assist** integration, and select **Pipecat Assist** for Conversation,
+Speech-to-text, and Text-to-speech.
 
 ## Pipelines and Pipecat Flows
 
 Pipecat Assist supports two realtime runtime families:
 
-- **Speech-to-speech realtime**: Gemini Live, OpenAI Realtime, and AWS Nova
-  Sonic take audio in and return audio directly. These are the lowest-friction
-  profiles and Gemini Live remains the first-run default.
+- **Speech-to-speech realtime**: Google Gemini Live takes audio in and returns
+  audio directly. This is the lowest-friction profile and the first-run default.
 - **Composed realtime**: streaming STT, streaming LLM, and streaming TTS are
-  chained by Pipecat. These pipelines are still realtime over WebRTC, but each
-  stage can use a different provider. Compatible TTS providers can synthesize
-  streamed LLM output in sentence or token chunks.
+  chained by Pipecat. These pipelines are still realtime over WebRTC, and
+  Google Cloud TTS Streaming can synthesize streamed LLM output in sentence or
+  token chunks.
 
-Provider integrations are intentionally split by capability. OpenAI Realtime
-and Gemini Live are speech-to-speech providers; OpenAI Cloud and Google Gemini
-Cloud are composed/text providers. Session Memory and Web Search are separate
-pipeline steps. Web Search selects a cloud LLM provider such as OpenAI Cloud or
-Google Gemini Cloud, while Home Assistant device control remains on MCP.
+Provider integrations are intentionally split by capability. Google Gemini Live
+is a speech-to-speech provider; Google Gemini Cloud is a composed/text/audio
+provider. Session Memory and Web Search are separate pipeline steps. Web Search
+uses Google Gemini Cloud with Google Search grounding, while Home Assistant
+device control remains on MCP.
 
 Official `pipecat-ai-flows` support is enabled for composed realtime pipelines.
 The flow editor stores nodes, transition functions, JSON schemas, and optional
 Home Assistant MCP tool calls. For speech-to-speech services, the UI disables
 the Pipecat Flow tile because Pipecat Flows does not currently support Gemini
-Live or OpenAI Realtime S2S APIs.
+Live S2S APIs.
 
 ## Home Assistant Assist and Lovelace
 

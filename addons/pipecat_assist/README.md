@@ -14,14 +14,15 @@ assistant test surface. Pipelines are complete runtime profiles used by the UI,
 ESPHome and standalone Pipecat ESP32 satellites, and Home Assistant cards.
 
 Gemini Live is preconfigured as the default speech-to-speech profile. The UI
-also includes composed realtime profiles such as `Soniox + OpenAI + Cartesia`,
-`Deepgram + Gemini + Google TTS Streaming`, and `Speechmatics + AWS Nova Pro +
-ElevenLabs`. Provider settings are configured in **Integrations**: realtime
-providers, cloud STT/LLM/TTS providers, Web Search, and Home Assistant MCP are
-kept separate. Google Imagen and fal Image Generation integrations can be used
-for Home Assistant image-generation tasks. Session Memory and Web Search are
-visible pipeline steps, and official Pipecat Flows can be enabled inside
-composed realtime pipelines.
+also includes a composed realtime profile (`Google STT + Gemini + Google TTS`)
+and custom pipelines built from Google Gemini Cloud, Google Cloud STT, and
+Google Cloud TTS (HTTP or Streaming). Provider settings are configured in
+**Integrations**: Google Gemini Live, Google Gemini Cloud, Google Cloud STT,
+Google Cloud TTS, Web Search (powered by Gemini Google Search grounding),
+Google Imagen (for Home Assistant image-generation tasks), and Home Assistant
+MCP are kept separate. Session Memory and Web Search are visible pipeline
+steps, and official Pipecat Flows can be enabled inside composed realtime
+pipelines.
 
 The built-in Home Assistant MCP integration uses the Supervisor connection
 automatically. The optional HA MCP Server Add-on integration is also detected

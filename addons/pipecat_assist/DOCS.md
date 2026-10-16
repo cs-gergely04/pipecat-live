@@ -38,19 +38,14 @@ includes filtered examples such as Minimal, Food Ordering, and Home Pizza via
 MCP. The default Flow remains pass-through until enabled.
 
 `Integrations`
-: Configure cloud providers and local AI endpoints, including Gemini, OpenAI,
-Soniox, Deepgram, Cartesia, Gradium, Speechmatics, AWS, ElevenLabs, Google
-Cloud TTS HTTP, Google Cloud TTS Streaming, Azure/OpenAI-compatible APIs,
-Ollama, local runtimes, Web Search, and Home Assistant MCP. Google Cloud TTS
+: Configure Google and MCP providers, including Google Gemini Live, Google
+Gemini Cloud, Google Cloud STT, Google Cloud TTS HTTP, Google Cloud TTS
+Streaming, Google Imagen, Web Search, and Home Assistant MCP. Google Cloud TTS
 HTTP is a normal one-shot synthesis option with a higher latency profile than
 Google Cloud TTS Streaming. Home Assistant MCP shows Automatic, Manual, or
 Error state and contains the MCP test/reset controls.
 
-OpenAI is split intentionally: **OpenAI Realtime** is for native
-speech-to-speech pipelines, while **OpenAI Cloud** is for composed pipelines
-that use separate STT, LLM, and TTS steps.
-
-Gemini is split the same way: **Google Gemini Live** is for native
+Gemini is split intentionally: **Google Gemini Live** is for native
 speech-to-speech pipelines, while **Google Gemini Cloud** is for composed
 pipelines that use separate STT, LLM, and TTS steps.
 
@@ -90,22 +85,20 @@ step. It keeps the last few messages for a browser or satellite client for a
 limited time, so reconnecting does not immediately lose the conversational
 context. It is in-memory only and is cleared when the add-on restarts.
 
-Web Search is also a pipeline step. Configure **Integrations > Web Search**,
-select a cloud LLM provider such as **OpenAI Cloud** or **Google Gemini Cloud**,
-then add or enable the Web Search step in a composed pipeline. OpenAI uses the
-Responses web search tool. Gemini uses Google Search grounding. Enable
-**Announce web search** on the step if the assistant should say "Please hold,
-I'm checking." before using a search tool. Home Assistant device control still
-uses MCP tools.
+Web Search is also a pipeline step. Configure **Integrations > Web Search**
+(which uses **Google Gemini Cloud** with Google Search grounding), then add or
+enable the Web Search step in a pipeline. Enable **Announce web search** on the
+step if the assistant should say "Please hold, I'm checking." before using a
+search tool. Home Assistant device control still uses MCP tools.
 
 ### Composed realtime latency
 
 Composed realtime pipelines stream audio through STT, LLM, and TTS stages. STT
-must still produce text before the LLM can act on it, but compatible TTS
-providers can synthesize streamed LLM output in chunks. In **Integrations**,
-providers such as Cartesia, ElevenLabs, Soniox, Gradium, and Google Cloud TTS
-Streaming expose a **TTS streaming** setting. `Sentence chunks` is smoother;
-`Token chunks` can reduce latency when the provider handles partial text well.
+must still produce text before the LLM can act on it, but Google Cloud TTS
+Streaming can synthesize streamed LLM output in chunks. In **Integrations**,
+**Google Cloud TTS Streaming** exposes a **TTS streaming** setting. `Sentence
+chunks` is smoother; `Token chunks` can reduce latency when partial text is
+handled well.
 
 ## Default Gemini Live setup
 
@@ -120,15 +113,11 @@ handled through MCP tools.
    install this uses the Supervisor token automatically.
 4. Open **Integrations > Google Gemini Live**:
    - Paste a Google AI Studio API key.
-   - Keep `models/gemini-3.1-flash-live-preview` as the realtime model.
+   - Keep `gemini-3.8-live` as the realtime model.
    - Use a Gemini Live voice such as `Charon` or `Puck`.
 5. Open **Pipelines**, then open **Gemini Live Home Assistant**.
 6. Keep the default instructions or adapt them to the household.
 7. Save the pipeline.
-
-For Home Assistant Assist bridge tests, configure a composed pipeline with a
-supported STT and TTS provider. Gemini Live itself is a speech-to-speech
-runtime.
 
 ### Browser voice test
 
@@ -149,8 +138,8 @@ files.
 This verifies the custom Home Assistant entities, selected pipeline, and MCP
 tools. It is not a full-duplex Gemini Live audio test; HA Assist still uses the
 classic STT -> Conversation -> TTS path. For the lowest latency voice
-experience, use the add-on Assistant page, Pipecat ESP32, or the Lovelace
-WebRTC card.
+experience, use the add-on Assistant page, ESPHome satellite, Pipecat ESP32, or
+the Lovelace WebRTC card.
 
 1. Copy or install `custom_components/pipecat_assist` into Home Assistant.
 2. Restart Home Assistant if the integration is not already available.
@@ -163,8 +152,7 @@ WebRTC card.
    Conversation, Speech-to-text, and Text-to-speech. Use the only available
    Pipecat Assist language entry; the real language and voice are configured in
    the add-on.
-6. Use a composed pipeline for this bridge. STT currently supports OpenAI Cloud
-   and Deepgram. TTS currently supports OpenAI Cloud and ElevenLabs.
+6. Both Gemini Live and Google Gemini Cloud pipelines support the bridge.
 7. Type or speak a Home Assistant request in Assist and check the add-on logs
    for MCP tool calls and model errors.
 
@@ -173,17 +161,13 @@ WebRTC card.
 Pipecat Assist exposes the Home Assistant AI Task entity with generated-data
 and image-generation support. For images:
 
-1. Open **Integrations > Google Imagen** or **Integrations > fal Image
-   Generation**.
-2. Enable the integration, enter the provider API key, and choose the image
+1. Open **Integrations > Google Imagen**.
+2. Enable the integration, enter your Google API key, and choose the image
    model.
 3. Open **Runtime > Image task provider** and either keep **First enabled image
-   provider** or select the exact provider to use.
+   provider** or select **Google Imagen**.
 4. In Home Assistant AI Tasks or AI Actions, choose **Pipecat Assist** for
    image generation.
-
-Moondream is a Pipecat vision service for image understanding, not a
-text-to-image provider, so it is not listed as an image-generation backend.
 
 ### Lovelace WebRTC card
 

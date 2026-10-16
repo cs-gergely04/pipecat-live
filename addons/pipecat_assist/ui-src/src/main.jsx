@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   Cloud,
   Copy,
-  Cpu,
   Database,
   Download,
   GitBranch,
@@ -522,65 +521,30 @@ const API = {
 };
 
 const REDACTED = "__redacted__";
-const GEMINI_TEXT_MODEL = "gemini-2.5-flash";
-const GEMINI_LIVE_MODEL = "gemini-3.1-flash-live-preview";
+const GEMINI_TEXT_MODEL = "gemini-3.8-flash";
+const GEMINI_LIVE_MODEL = "gemini-3.8-live";
 const GEMINI_LIVE_VOICE = "Charon";
-const OPENAI_TEXT_MODEL = "gpt-5.4-mini";
-const OPENAI_REALTIME_MODEL = "gpt-realtime-2";
-const OPENAI_REALTIME_VOICE = "marin";
-const OPENAI_STT_MODEL = "gpt-4o-mini-transcribe";
-const OPENAI_TTS_MODEL = "gpt-4o-mini-tts";
-const OPENAI_TTS_VOICE = "marin";
-const CARTESIA_MODEL = "sonic-3.5";
-const CARTESIA_VOICE = "f786b574-daa5-4673-aa0c-cbe3e8534c02";
-const ELEVENLABS_MODEL = "eleven_flash_v2_5";
-const ELEVENLABS_VOICE = "Xb7hH8MSUJpSbSDYk0k2";
+const GEMINI_TTS_MODEL = "gemini-3.8-flash-tts";
+const GOOGLE_CLOUD_STT_MODEL = "latest_short";
 const GOOGLE_TTS_VOICE = "en-US-Chirp3-HD-Charon";
-const AWS_NOVA_SONIC_MODEL = "amazon.nova-2-sonic-v1:0";
-const AWS_NOVA_SONIC_VOICE = "matthew";
-const AWS_BEDROCK_MODEL = "amazon.nova-pro-v1:0";
-const DEEPGRAM_MODEL = "nova-3";
-const SONIOX_MODEL = "stt-rt-v5";
-const SPEECHMATICS_MODEL = "enhanced";
-const WEB_SEARCH_MODEL = "gpt-5.5";
+const WEB_SEARCH_MODEL = GEMINI_TEXT_MODEL;
 const GOOGLE_IMAGEN_MODEL = "imagen-4.0-generate-001";
-const FAL_IMAGE_MODEL = "fal-ai/fast-sdxl";
-const OPENAI_REALTIME_VOICES = [
-  "alloy",
-  "ash",
-  "ballad",
-  "cedar",
-  "coral",
-  "echo",
-  "marin",
-  "sage",
-  "shimmer",
-  "verse",
+const GEMINI_LIVE_VOICES = [
+  "Aoede",
+  "Charon",
+  "Fenrir",
+  "Kore",
+  "Puck",
 ];
 
 const providerKinds = [
-  ["openai", "OpenAI Realtime", Radio],
-  ["openai_cloud", "OpenAI Cloud", Cloud],
   ["gemini", "Google Gemini Live", Radio],
   ["gemini_cloud", "Google Gemini Cloud", Cloud],
+  ["google_cloud_stt", "Google Cloud STT", Cloud],
   ["google_cloud_tts", "Google Cloud TTS HTTP", Cloud],
   ["google_streaming_tts", "Google Cloud TTS Streaming", Radio],
-  ["soniox", "Soniox", Cloud],
-  ["deepgram", "Deepgram", Cloud],
-  ["cartesia", "Cartesia", Cloud],
-  ["gradium", "Gradium", Cloud],
-  ["speechmatics", "Speechmatics", Cloud],
-  ["elevenlabs", "ElevenLabs", Cloud],
-  ["anthropic", "Anthropic", Cloud],
-  ["aws_bedrock", "Bedrock", Cloud],
-  ["aws_nova_sonic", "AWS Nova Sonic", Radio],
-  ["azure_openai", "Azure OpenAI", Cloud],
-  ["openai_compatible", "OpenAI-compatible", Server],
-  ["ollama", "Ollama", Cpu],
-  ["local_runtime", "Local runtime", Cpu],
   ["web_search", "Web Search", Search],
   ["google_imagen", "Google Imagen", ImageIcon],
-  ["fal_image", "fal Image Generation", ImageIcon],
   ["home_assistant_mcp", "Home Assistant MCP", Home],
   ["ha_mcp", "HA MCP Server Add-on", Home],
   ["mcp_server", "Custom MCP Server", Server],
@@ -589,33 +553,25 @@ const providerKinds = [
 const protectedIntegrationIds = [
   "gemini",
   "gemini-cloud",
-  "openai",
-  "openai-cloud",
+  "google-cloud-stt",
+  "google-cloud-tts",
+  "google-streaming-tts",
   "ha-mcp",
   "ha-mcp-server",
   "web-search",
   "google-imagen",
-  "fal-image",
 ];
 
 const languageIntegrationKinds = [
   "gemini",
   "gemini_cloud",
-  "openai",
-  "openai_cloud",
-  "soniox",
-  "deepgram",
-  "gradium",
-  "speechmatics",
-  "openai_compatible",
-  "ollama",
-  "local_runtime",
+  "google_cloud_stt",
 ];
 
-const speedIntegrationKinds = ["openai", "openai_cloud", "google_cloud_tts", "elevenlabs"];
-const ttsStreamingIntegrationKinds = ["cartesia", "soniox", "gradium", "google_streaming_tts"];
-const webSearchProviderKinds = ["openai_cloud", "gemini_cloud"];
-const imageGenerationProviderKinds = ["google_imagen", "fal_image"];
+const speedIntegrationKinds = ["google_cloud_tts"];
+const ttsStreamingIntegrationKinds = ["google_streaming_tts"];
+const webSearchProviderKinds = ["gemini_cloud"];
+const imageGenerationProviderKinds = ["google_imagen"];
 
 const stepTypes = [
   ["transport", "Transport", Radio, "neutral"],
@@ -633,17 +589,17 @@ const stepTypes = [
 const addableStepTypes = stepTypes.filter(([kind]) => !["transport", "output"].includes(kind));
 
 const stepProviders = {
-  stt: ["soniox", "deepgram", "speechmatics", "gradium", "openai_cloud"],
-  llm: ["openai_cloud", "gemini_cloud", "aws_bedrock", "openai_compatible", "ollama"],
-  tts: ["cartesia", "gradium", "google_cloud_tts", "google_streaming_tts", "elevenlabs", "openai_cloud", "soniox"],
+  stt: ["google_cloud_stt", "gemini_cloud"],
+  llm: ["gemini_cloud"],
+  tts: ["google_cloud_tts", "google_streaming_tts", "gemini_cloud"],
   tools: ["home_assistant_mcp", "ha_mcp", "mcp_server"],
   web_search: ["web_search"],
-  output: ["gemini", "openai", "aws_nova_sonic"],
+  output: ["gemini"],
 };
 const runtimeStepOrder = ["transport", "memory", "vad", "stt", "llm", "web_search", "tools", "flow", "tts", "output"];
 
 function allowedProvidersForStep(kind, mode) {
-  if (kind === "llm" && mode === "realtime") return ["gemini", "openai", "aws_nova_sonic"];
+  if (kind === "llm" && mode === "realtime") return ["gemini"];
   if (kind === "output" && mode === "composed") return [];
   return stepProviders[kind] || null;
 }
@@ -673,86 +629,8 @@ const templates = [
     ],
   },
   {
-    id: "realtime_home",
-    label: "OpenAI Realtime",
-    icon: Radio,
-    group: "Speech-to-speech",
-    mode: "realtime",
-    provider: "openai",
-    accent: "green",
-    steps: [
-      ["transport", "transport", "SmallWebRTC", ""],
-      ["memory", "memory", "Session memory", ""],
-      ["vad", "vad", "Semantic VAD", ""],
-      ["llm", "llm", "Realtime model", "openai"],
-      ["web_search", "web_search", "Web Search", "web-search"],
-      ["tools", "tools", "HA MCP tools", "ha-mcp"],
-      ["output", "output", "Audio output", "openai"],
-    ],
-  },
-  {
-    id: "aws_nova_sonic",
-    label: "AWS Nova Sonic",
-    icon: Radio,
-    group: "Speech-to-speech",
-    mode: "realtime",
-    provider: "aws-nova-sonic",
-    accent: "amber",
-    steps: [
-      ["transport", "transport", "SmallWebRTC", ""],
-      ["memory", "memory", "Session memory", ""],
-      ["vad", "vad", "Nova Sonic VAD", ""],
-      ["llm", "llm", "Nova Sonic", "aws-nova-sonic"],
-      ["web_search", "web_search", "Web Search", "web-search"],
-      ["tools", "tools", "HA MCP tools", "ha-mcp"],
-      ["output", "output", "Native audio", "aws-nova-sonic"],
-    ],
-  },
-  {
-    id: "soniox_openai_cartesia",
-    label: "Soniox + OpenAI + Cartesia",
-    icon: Workflow,
-    group: "Composed realtime",
-    mode: "composed",
-    provider: "openai-cloud",
-    accent: "mint",
-    steps: [
-      ["transport", "transport", "SmallWebRTC", ""],
-      ["memory", "memory", "Session memory", ""],
-      ["vad", "vad", "Turn detection", ""],
-      ["stt", "stt", "Soniox STT", "soniox"],
-      ["llm", "llm", "OpenAI LLM", "openai-cloud"],
-      ["web_search", "web_search", "Web Search", "web-search"],
-      ["tools", "tools", "HA MCP tools", "ha-mcp"],
-      ["flow", "flow", "Pipecat Flow", ""],
-      ["tts", "tts", "Cartesia TTS", "cartesia"],
-      ["output", "output", "Audio output", ""],
-    ],
-  },
-  {
-    id: "soniox_openai_gradium",
-    label: "Soniox + OpenAI + Gradium",
-    icon: Workflow,
-    group: "Composed realtime",
-    mode: "composed",
-    provider: "openai-cloud",
-    accent: "mint",
-    steps: [
-      ["transport", "transport", "SmallWebRTC", ""],
-      ["memory", "memory", "Session memory", ""],
-      ["vad", "vad", "Turn detection", ""],
-      ["stt", "stt", "Soniox STT", "soniox"],
-      ["llm", "llm", "OpenAI LLM", "openai-cloud"],
-      ["web_search", "web_search", "Web Search", "web-search"],
-      ["tools", "tools", "HA MCP tools", "ha-mcp"],
-      ["flow", "flow", "Pipecat Flow", ""],
-      ["tts", "tts", "Gradium TTS", "gradium"],
-      ["output", "output", "Audio output", ""],
-    ],
-  },
-  {
-    id: "deepgram_gemini_google_tts",
-    label: "Deepgram + Gemini + Google TTS",
+    id: "gemini_composed_home",
+    label: "Google STT + Gemini + Google TTS",
     icon: Workflow,
     group: "Composed realtime",
     mode: "composed",
@@ -762,96 +640,12 @@ const templates = [
       ["transport", "transport", "SmallWebRTC", ""],
       ["memory", "memory", "Session memory", ""],
       ["vad", "vad", "Turn detection", ""],
-      ["stt", "stt", "Deepgram STT", "deepgram"],
+      ["stt", "stt", "Google Cloud STT", "google-cloud-stt"],
       ["llm", "llm", "Gemini Cloud LLM", "gemini-cloud"],
       ["web_search", "web_search", "Web Search", "web-search"],
       ["tools", "tools", "HA MCP tools", "ha-mcp"],
       ["flow", "flow", "Pipecat Flow", ""],
       ["tts", "tts", "Google TTS Streaming", "google-streaming-tts"],
-      ["output", "output", "Audio output", ""],
-    ],
-  },
-  {
-    id: "deepgram_google_google_tts",
-    label: "Deepgram + Google + Google TTS",
-    icon: Workflow,
-    group: "Composed realtime",
-    mode: "composed",
-    provider: "gemini-cloud",
-    accent: "blue",
-    steps: [
-      ["transport", "transport", "SmallWebRTC", ""],
-      ["memory", "memory", "Session memory", ""],
-      ["vad", "vad", "Turn detection", ""],
-      ["stt", "stt", "Deepgram STT", "deepgram"],
-      ["llm", "llm", "Gemini Cloud LLM", "gemini-cloud"],
-      ["web_search", "web_search", "Web Search", "web-search"],
-      ["tools", "tools", "HA MCP tools", "ha-mcp"],
-      ["flow", "flow", "Pipecat Flow", ""],
-      ["tts", "tts", "Google TTS Streaming", "google-streaming-tts"],
-      ["output", "output", "Audio output", ""],
-    ],
-  },
-  {
-    id: "speechmatics_aws_elevenlabs",
-    label: "Speechmatics + AWS + ElevenLabs",
-    icon: Workflow,
-    group: "Composed realtime",
-    mode: "composed",
-    provider: "bedrock",
-    accent: "rose",
-    steps: [
-      ["transport", "transport", "SmallWebRTC", ""],
-      ["memory", "memory", "Session memory", ""],
-      ["vad", "vad", "Turn detection", ""],
-      ["stt", "stt", "Speechmatics STT", "speechmatics"],
-      ["llm", "llm", "AWS Nova Pro", "bedrock"],
-      ["web_search", "web_search", "Web Search", "web-search"],
-      ["tools", "tools", "HA MCP tools", "ha-mcp"],
-      ["flow", "flow", "Pipecat Flow", ""],
-      ["tts", "tts", "ElevenLabs TTS", "elevenlabs"],
-      ["output", "output", "Audio output", ""],
-    ],
-  },
-  {
-    id: "cloud_cascade",
-    label: "Cloud Custom",
-    icon: Cloud,
-    group: "Custom",
-    mode: "composed",
-    provider: "gemini-cloud",
-    accent: "blue",
-    steps: [
-      ["transport", "transport", "SmallWebRTC", ""],
-      ["memory", "memory", "Session memory", ""],
-      ["vad", "vad", "Turn detection", ""],
-      ["stt", "stt", "Cloud STT", "deepgram"],
-      ["llm", "llm", "Cloud LLM", "gemini-cloud"],
-      ["web_search", "web_search", "Web Search", "web-search"],
-      ["tools", "tools", "HA MCP tools", "ha-mcp"],
-      ["flow", "flow", "Pipecat Flow", ""],
-      ["tts", "tts", "Cloud TTS", "google-streaming-tts"],
-      ["output", "output", "Audio output", ""],
-    ],
-  },
-  {
-    id: "local_first",
-    label: "Local First",
-    icon: Cpu,
-    group: "Local",
-    mode: "composed",
-    provider: "ollama",
-    accent: "amber",
-    steps: [
-      ["transport", "transport", "SmallWebRTC", ""],
-      ["memory", "memory", "Session memory", ""],
-      ["vad", "vad", "Local VAD", "local-runtime"],
-      ["stt", "stt", "Local STT", "local-runtime"],
-      ["llm", "llm", "Local LLM", "ollama"],
-      ["web_search", "web_search", "Web Search", "web-search"],
-      ["tools", "tools", "HA MCP tools", "ha-mcp"],
-      ["flow", "flow", "Pipecat Flow", ""],
-      ["tts", "tts", "Local TTS", "local-runtime"],
       ["output", "output", "Audio output", ""],
     ],
   },
@@ -861,8 +655,8 @@ const templates = [
     icon: GitBranch,
     group: "Custom",
     mode: "composed",
-    provider: "openai-compatible",
-    accent: "red",
+    provider: "gemini-cloud",
+    accent: "blue",
     steps: [],
   },
 ];
@@ -882,7 +676,7 @@ const defaultFlow = {
   instructions:
     "You are a realtime Home Assistant voice agent. Speak naturally and briefly. Use Home Assistant MCP tools only when the user clearly asks to control, inspect, or automate the home. Never invent device state. If a room, device, or action is ambiguous, ask one short clarification.",
   greeting: "Greet the user briefly and wait for their request.",
-  transcription_model: "gpt-realtime-whisper",
+  transcription_model: "gemini-live",
   noise_reduction: "near_field",
   vad_mode: "semantic_vad",
   vad_eagerness: "low",
@@ -1414,6 +1208,7 @@ function providerDefaults(provider) {
   if (provider === "gemini") {
     return {
       model: GEMINI_LIVE_MODEL,
+      tts_model: GEMINI_TTS_MODEL,
       voice: GEMINI_LIVE_VOICE,
     };
   }
@@ -1421,45 +1216,30 @@ function providerDefaults(provider) {
     return {
       model: GEMINI_TEXT_MODEL,
       text_model: GEMINI_TEXT_MODEL,
+      tts_model: GEMINI_TTS_MODEL,
       voice: "",
     };
   }
-  if (provider === "openai") {
+  if (provider === "google-cloud-stt" || provider === "google_cloud_stt") {
     return {
-      model: OPENAI_REALTIME_MODEL,
-      voice: OPENAI_REALTIME_VOICE,
+      model: GOOGLE_CLOUD_STT_MODEL,
+      stt_model: GOOGLE_CLOUD_STT_MODEL,
+      text_model: "",
+      voice: "",
     };
   }
-  if (provider === "openai_cloud" || provider === "openai-cloud") {
-    return {
-      model: OPENAI_TEXT_MODEL,
-      text_model: OPENAI_TEXT_MODEL,
-      stt_model: OPENAI_STT_MODEL,
-      tts_model: OPENAI_TTS_MODEL,
-      voice: OPENAI_TTS_VOICE,
-    };
-  }
-  if (provider === "aws-nova-sonic" || provider === "aws_nova_sonic") {
-    return { model: AWS_NOVA_SONIC_MODEL, text_model: AWS_BEDROCK_MODEL, voice: AWS_NOVA_SONIC_VOICE };
-  }
-  if (provider === "bedrock" || provider === "aws_bedrock") {
-    return { model: AWS_BEDROCK_MODEL, text_model: AWS_BEDROCK_MODEL, voice: "" };
-  }
-  if (provider === "soniox") return { model: SONIOX_MODEL, text_model: "", voice: "" };
-  if (provider === "deepgram") return { model: DEEPGRAM_MODEL, text_model: "", voice: "" };
-  if (provider === "cartesia") return { model: CARTESIA_MODEL, text_model: "", voice: CARTESIA_VOICE };
-  if (provider === "elevenlabs") return { model: ELEVENLABS_MODEL, text_model: "", voice: ELEVENLABS_VOICE };
   if (provider === "google-cloud-tts" || provider === "google_cloud_tts") {
     return { model: "google-tts", text_model: "", voice: GOOGLE_TTS_VOICE };
   }
   if (provider === "google-streaming-tts" || provider === "google_streaming_tts") {
     return { model: "google-streaming-tts", text_model: "", voice: GOOGLE_TTS_VOICE };
   }
-  if (provider === "speechmatics") return { model: SPEECHMATICS_MODEL, text_model: "", voice: "" };
-  if (provider === "web_search" || provider === "web-search") return { model: WEB_SEARCH_MODEL, text_model: WEB_SEARCH_MODEL, voice: "" };
-  if (provider === "google_imagen" || provider === "google-imagen") return { model: GOOGLE_IMAGEN_MODEL, text_model: GOOGLE_IMAGEN_MODEL, voice: "" };
-  if (provider === "fal_image" || provider === "fal-image") return { model: FAL_IMAGE_MODEL, text_model: FAL_IMAGE_MODEL, voice: "" };
-  if (provider === "openai_compatible" || provider === "openai-compatible") return { model: "", text_model: "", voice: "" };
+  if (provider === "web_search" || provider === "web-search") {
+    return { model: WEB_SEARCH_MODEL, text_model: WEB_SEARCH_MODEL, voice: "" };
+  }
+  if (provider === "google_imagen" || provider === "google-imagen") {
+    return { model: GOOGLE_IMAGEN_MODEL, text_model: GOOGLE_IMAGEN_MODEL, voice: "" };
+  }
   return {};
 }
 
@@ -1489,15 +1269,13 @@ function realtimeModelMatchesProvider(provider, model) {
   const value = String(model || "").trim();
   if (!value) return false;
   if (provider === "gemini") return value.includes("gemini");
-  if (provider === "openai") return value.includes("realtime") && !value.startsWith("models/");
   return true;
 }
 
 function realtimeVoiceMatchesProvider(provider, voice) {
   const value = String(voice || "").trim();
   if (!value) return false;
-  if (provider === "gemini") return !OPENAI_REALTIME_VOICES.includes(value);
-  if (provider === "openai") return OPENAI_REALTIME_VOICES.includes(value);
+  if (provider === "gemini") return GEMINI_LIVE_VOICES.includes(value);
   return true;
 }
 
@@ -1582,7 +1360,7 @@ function deriveFlowMode(flow, config) {
   const hasTts = steps.some((step) => step.kind === "tts" && step.enabled);
   const llm = steps.find((step) => step.kind === "llm" && step.enabled);
   const providerKind = providerKindForIntegration(config, llm?.integration_id || flow.provider_id);
-  if (!hasStt && !hasTts && ["gemini", "openai", "aws_nova_sonic"].includes(providerKind)) {
+  if (!hasStt && !hasTts && providerKind === "gemini") {
     return "realtime";
   }
   return "composed";
@@ -1595,7 +1373,7 @@ function ensureShape(config) {
     language: integration.language || "en",
     speed: Number(integration.speed || 1),
     tts_streaming_mode: integration.tts_streaming_mode || "sentence",
-    provider_id: integration.provider_id || (integration.kind === "web_search" ? "openai-cloud" : ""),
+    provider_id: integration.provider_id || (integration.kind === "web_search" ? "gemini-cloud" : ""),
   }));
   shaped.audio_debug_enabled = Boolean(shaped.audio_debug_enabled);
   shaped.audio_debug_keep_sessions = Math.min(
@@ -1743,41 +1521,15 @@ function integrationSummary(integration, config = null) {
     const provider = config?.integrations?.find((item) => item.id === integration.provider_id);
     return provider ? `via ${provider.name}` : "provider missing";
   }
-  if (
-    [
-      "gemini",
-      "gemini_cloud",
-      "openai",
-      "openai_cloud",
-      "anthropic",
-      "azure_openai",
-      "soniox",
-      "deepgram",
-      "cartesia",
-      "gradium",
-      "speechmatics",
-      "elevenlabs",
-      "google_imagen",
-      "fal_image",
-    ].includes(integration.kind)
-  ) {
+  if (["gemini", "gemini_cloud", "google_imagen"].includes(integration.kind)) {
     const status = secretStatus(integration, "api_key");
     if (status === "configured") return "API key saved";
     if (status === "pending") return "save pending";
     return "API key missing";
   }
-  if (["google_cloud_tts", "google_streaming_tts"].includes(integration.kind)) {
+  if (["google_cloud_stt", "google_cloud_tts", "google_streaming_tts"].includes(integration.kind)) {
     if (integration.credentials_path) return "credentials path";
     return secretStatus(integration, "credentials_json") === "configured" ? "credentials saved" : "credentials missing";
-  }
-  if (integration.kind === "aws_bedrock") {
-    return integration.region ? `region ${integration.region}` : "region missing";
-  }
-  if (integration.kind === "aws_nova_sonic") {
-    return integration.region ? `region ${integration.region}` : "region missing";
-  }
-  if (["ollama", "openai_compatible", "local_runtime"].includes(integration.kind)) {
-    return integration.base_url || integration.endpoint || "endpoint missing";
   }
   return kindLabel(integration.kind);
 }
@@ -2124,7 +1876,7 @@ function App() {
     setSelectedStepId(step.id);
   }
 
-  function addIntegration(kind = "openai_compatible") {
+  function addIntegration(kind = "mcp_server") {
     const label = kindLabel(kind);
     const id = slugify(`${kind}-${config.integrations.length + 1}`);
     const integration = {
@@ -2134,10 +1886,8 @@ function App() {
       enabled: true,
       api_key: "",
       token: "",
-      base_url: kind === "ollama" ? "http://localhost:11434/v1" : "",
+      base_url: "",
       endpoint: "",
-      region: "",
-      deployment: "",
       language: "en",
       speed: 1,
       tts_streaming_mode: "sentence",
@@ -2146,14 +1896,11 @@ function App() {
       default_stt_model: providerDefaults(kind).stt_model || "",
       default_tts_model: providerDefaults(kind).tts_model || "",
       default_voice: providerDefaults(kind).voice || "",
-      organization: "",
       project: "",
       location: "",
       credentials_json: "",
       credentials_path: "",
-      access_key_id: "",
-      secret_key: "",
-      provider_id: kind === "web_search" ? "openai-cloud" : "",
+      provider_id: kind === "web_search" ? "gemini-cloud" : "",
     };
     updateConfig((draft) => {
       draft.integrations.push(integration);
@@ -2516,34 +2263,17 @@ function pipelineReadiness(config, flow) {
       continue;
     }
     if (
-      ![
-        "home_assistant_mcp",
-        "google_cloud_tts",
-        "google_streaming_tts",
-        "aws_bedrock",
-        "aws_nova_sonic",
-        "ollama",
-        "local_runtime",
-        "ha_mcp",
-        "mcp_server",
-      ].includes(
-        integration.kind,
-      ) &&
+      ["gemini", "gemini_cloud", "google_imagen"].includes(integration.kind) &&
       secretStatus(integration, "api_key") === "missing"
     ) {
       missing.push(integration.name);
     }
     if (
-      ["google_cloud_tts", "google_streaming_tts"].includes(integration.kind) &&
+      ["google_cloud_stt", "google_cloud_tts", "google_streaming_tts"].includes(integration.kind) &&
       !integration.credentials_path &&
       secretStatus(integration, "credentials_json") === "missing"
     ) {
       missing.push(integration.name);
-    }
-    if (["aws_bedrock", "aws_nova_sonic"].includes(integration.kind)) {
-      if (secretStatus(integration, "access_key_id") === "missing" || secretStatus(integration, "secret_key") === "missing") {
-        missing.push(integration.name);
-      }
     }
   }
   return [...new Set(missing)];
@@ -2608,7 +2338,7 @@ function validatePipeline(config, flow) {
         errors.push(`${searchProvider.name} cannot be used for Web Search.`);
       } else if (!searchProvider.enabled) {
         errors.push(`${searchProvider.name} is disabled.`);
-      } else if (searchProvider.kind !== "openai_compatible" && secretStatus(searchProvider, "api_key") === "missing") {
+      } else if (secretStatus(searchProvider, "api_key") === "missing") {
         errors.push(`${searchProvider.name} API key is missing.`);
       }
     }
@@ -2640,24 +2370,17 @@ function validatePipeline(config, flow) {
       errors.push(`${integration.name} cannot be used as ${step.kind.toUpperCase()}.`);
     }
     if (
-      ["gemini", "gemini_cloud", "openai", "openai_cloud", "soniox", "deepgram", "cartesia", "gradium", "speechmatics", "elevenlabs"].includes(
-        integration.kind,
-      ) &&
+      ["gemini", "gemini_cloud"].includes(integration.kind) &&
       secretStatus(integration, "api_key") === "missing"
     ) {
       errors.push(`${integration.name} API key is missing.`);
     }
     if (
-      ["google_cloud_tts", "google_streaming_tts"].includes(integration.kind) &&
+      ["google_cloud_stt", "google_cloud_tts", "google_streaming_tts"].includes(integration.kind) &&
       !integration.credentials_path &&
       secretStatus(integration, "credentials_json") === "missing"
     ) {
       errors.push(`${integration.name} credentials are missing.`);
-    }
-    if (["aws_bedrock", "aws_nova_sonic"].includes(integration.kind)) {
-      if (secretStatus(integration, "access_key_id") === "missing" || secretStatus(integration, "secret_key") === "missing") {
-        errors.push(`${integration.name} AWS credentials are missing.`);
-      }
     }
   }
 
@@ -2802,8 +2525,6 @@ function PipelineView({
   const derivedMode = deriveFlowMode(flow, config);
   const flowSupported = derivedMode === "composed";
   const selectedTone = selectedStep ? stepTone(selectedStep.kind) : "neutral";
-  const modelIntegration = flowModelIntegration(config, flow);
-  const showOpenAiBargeIn = derivedMode === "realtime" && modelIntegration?.kind === "openai";
 
   return (
     <div className="pipeline-editor-grid">
@@ -2964,23 +2685,6 @@ function PipelineView({
           <>
             <div className="divider" />
             <div className="form-grid">
-              {showOpenAiBargeIn && (
-                <>
-                  <Field label="Noise reduction">
-                    <select value={flow.noise_reduction} onChange={(event) => updateFlow((draft) => ({ ...draft, noise_reduction: event.target.value }))}>
-                      <option value="off">off</option>
-                      <option value="near_field">near field</option>
-                      <option value="far_field">far field</option>
-                    </select>
-                  </Field>
-                  <Field label="VAD">
-                    <select value={flow.vad_mode} onChange={(event) => updateFlow((draft) => ({ ...draft, vad_mode: event.target.value }))}>
-                      <option value="semantic_vad">semantic</option>
-                      <option value="server_vad">server</option>
-                    </select>
-                  </Field>
-                </>
-              )}
               <Field label="VAD eagerness">
                 <select value={flow.vad_eagerness} onChange={(event) => updateFlow((draft) => ({ ...draft, vad_eagerness: event.target.value }))}>
                   <option value="low">low</option>
@@ -2989,13 +2693,6 @@ function PipelineView({
                   <option value="auto">auto</option>
                 </select>
               </Field>
-              {showOpenAiBargeIn && (
-                <Toggle
-                  checked={flow.interrupt_response}
-                  onChange={(value) => updateFlow((draft) => ({ ...draft, interrupt_response: value }))}
-                  label="Interrupt response"
-                />
-              )}
             </div>
           </>
         )}
@@ -4025,7 +3722,7 @@ function WebSearchSettings({ integration, config, updateIntegration, modelOption
   const providers = config.integrations.filter((item) => webSearchProviderKinds.includes(item.kind));
   const selectedProvider =
     providers.find((item) => item.id === integration.provider_id) ||
-    providers.find((item) => item.id === "openai-cloud") ||
+    providers.find((item) => item.id === "gemini-cloud") ||
     providers[0];
   const providerKey = selectedProvider ? `${selectedProvider.id}:llm` : "";
   const options = providerKey ? modelOptions?.[providerKey] || [] : [];
@@ -4070,7 +3767,7 @@ function WebSearchSettings({ integration, config, updateIntegration, modelOption
         </datalist>
       </Field>
       <div className="empty-state wide">
-        OpenAI uses the Responses web search tool. Gemini uses Google Search grounding. Credentials stay in the selected provider integration.
+        Gemini uses Google Search grounding. Credentials stay in the selected provider integration.
       </div>
     </SettingsSection>
   );
@@ -4127,62 +3824,6 @@ function IntegrationSettings({
       <>
         <SettingsSection title="Credentials" status={secretStatus(integration, "api_key")}>
           <SecretSetting integration={integration} field="api_key" label="Gemini API key" updateIntegration={updateIntegration} />
-        </SettingsSection>
-        <SettingsSection title="Language model">
-          <ModelSetting
-            integration={integration}
-            field="default_model"
-            label="Text model"
-            updateIntegration={updateIntegration}
-            modelOptions={modelOptions}
-            loadModelOptions={loadModelOptions}
-            capability="llm"
-          />
-        </SettingsSection>
-      </>
-    );
-  }
-
-  if (integration.kind === "openai") {
-    return (
-      <>
-        <SettingsSection title="Credentials" status={secretStatus(integration, "api_key")}>
-          <SecretSetting integration={integration} field="api_key" label="OpenAI API key" updateIntegration={updateIntegration} />
-        </SettingsSection>
-        <SettingsSection title="Realtime">
-          <ModelSetting
-            integration={integration}
-            field="default_realtime_model"
-            label="Realtime model"
-            updateIntegration={updateIntegration}
-            modelOptions={modelOptions}
-            loadModelOptions={loadModelOptions}
-            capability="realtime"
-          />
-          <TextSetting integration={integration} field="default_voice" label="Voice" updateIntegration={updateIntegration} />
-        </SettingsSection>
-      </>
-    );
-  }
-
-  if (integration.kind === "openai_cloud") {
-    return (
-      <>
-        <SettingsSection title="Credentials" status={secretStatus(integration, "api_key")}>
-          <SecretSetting integration={integration} field="api_key" label="OpenAI API key" updateIntegration={updateIntegration} />
-          <TextSetting integration={integration} field="organization" label="Organization" updateIntegration={updateIntegration} />
-          <TextSetting integration={integration} field="project" label="Project" updateIntegration={updateIntegration} />
-        </SettingsSection>
-        <SettingsSection title="Speech to text">
-          <ModelSetting
-            integration={integration}
-            field="default_stt_model"
-            label="Transcription model"
-            updateIntegration={updateIntegration}
-            modelOptions={modelOptions}
-            loadModelOptions={loadModelOptions}
-            capability="stt"
-          />
         </SettingsSection>
         <SettingsSection title="Language model">
           <ModelSetting
@@ -4313,12 +3954,11 @@ function IntegrationSettings({
     return <WebSearchSettings integration={integration} config={config} updateIntegration={updateIntegration} modelOptions={modelOptions} loadModelOptions={loadModelOptions} />;
   }
 
-  if (["google_imagen", "fal_image"].includes(integration.kind)) {
-    const keyLabel = integration.kind === "google_imagen" ? "Google API key" : "fal API key";
+  if (integration.kind === "google_imagen") {
     return (
       <>
         <SettingsSection title="Image generation" status={secretStatus(integration, "api_key")}>
-          <SecretSetting integration={integration} field="api_key" label={keyLabel} updateIntegration={updateIntegration} />
+          <SecretSetting integration={integration} field="api_key" label="Google API key" updateIntegration={updateIntegration} />
           <ModelSetting
             integration={integration}
             field="default_model"
@@ -4336,29 +3976,7 @@ function IntegrationSettings({
     );
   }
 
-  if (["soniox", "deepgram", "gradium", "speechmatics"].includes(integration.kind)) {
-    return (
-      <SettingsSection title={kindLabel(integration.kind)} status={secretStatus(integration, "api_key")}>
-        <SecretSetting integration={integration} field="api_key" label="API key" updateIntegration={updateIntegration} />
-        <TextSetting integration={integration} field="default_model" label="STT model" updateIntegration={updateIntegration} />
-        {["soniox", "gradium"].includes(integration.kind) && (
-          <TextSetting integration={integration} field="default_voice" label="TTS voice" updateIntegration={updateIntegration} />
-        )}
-      </SettingsSection>
-    );
-  }
-
-  if (["cartesia", "elevenlabs"].includes(integration.kind)) {
-    return (
-      <SettingsSection title={kindLabel(integration.kind)} status={secretStatus(integration, "api_key")}>
-        <SecretSetting integration={integration} field="api_key" label="API key" updateIntegration={updateIntegration} />
-        <TextSetting integration={integration} field="default_model" label="TTS model" updateIntegration={updateIntegration} />
-        <TextSetting integration={integration} field="default_voice" label="Voice" updateIntegration={updateIntegration} />
-      </SettingsSection>
-    );
-  }
-
-  if (["google_cloud_tts", "google_streaming_tts"].includes(integration.kind)) {
+  if (["google_cloud_stt", "google_cloud_tts", "google_streaming_tts"].includes(integration.kind)) {
     return (
       <>
         <SettingsSection title={kindLabel(integration.kind)} status={secretStatus(integration, "credentials_json")}>
@@ -4366,102 +3984,23 @@ function IntegrationSettings({
           <SecretSetting integration={integration} field="credentials_json" label="Credentials JSON" updateIntegration={updateIntegration} wide />
           <TextSetting integration={integration} field="location" label="Location" updateIntegration={updateIntegration} />
         </SettingsSection>
-        <SettingsSection title="Voice">
-          <TextSetting integration={integration} field="default_voice" label="Voice" updateIntegration={updateIntegration} />
-        </SettingsSection>
-      </>
-    );
-  }
-
-  if (integration.kind === "aws_nova_sonic") {
-    return (
-      <>
-        <SettingsSection title="AWS Nova Sonic">
-          <TextSetting integration={integration} field="region" label="Region" updateIntegration={updateIntegration} />
-          <TextSetting integration={integration} field="default_realtime_model" label="Realtime model" updateIntegration={updateIntegration} />
-          <TextSetting integration={integration} field="default_voice" label="Voice" updateIntegration={updateIntegration} />
-        </SettingsSection>
-        <SettingsSection title="Credentials" status={secretStatus(integration, "secret_key")}>
-          <SecretSetting integration={integration} field="access_key_id" label="Access key" updateIntegration={updateIntegration} />
-          <SecretSetting integration={integration} field="secret_key" label="Secret key" updateIntegration={updateIntegration} />
-          <SecretSetting integration={integration} field="token" label="Session token" updateIntegration={updateIntegration} />
-        </SettingsSection>
-      </>
-    );
-  }
-
-  if (integration.kind === "openai_compatible") {
-    return (
-      <>
-        <SettingsSection title="Endpoint">
-          <TextSetting integration={integration} field="base_url" label="Base URL" updateIntegration={updateIntegration} wide />
-          <SecretSetting integration={integration} field="api_key" label="API key" updateIntegration={updateIntegration} />
-        </SettingsSection>
-        <SettingsSection title="Models">
-          <TextSetting integration={integration} field="default_model" label="Text model" updateIntegration={updateIntegration} />
-          <TextSetting integration={integration} field="default_realtime_model" label="Realtime model" updateIntegration={updateIntegration} />
-        </SettingsSection>
-      </>
-    );
-  }
-
-  if (integration.kind === "ollama") {
-    return (
-      <SettingsSection title="Local model server">
-        <TextSetting integration={integration} field="base_url" label="Base URL" updateIntegration={updateIntegration} wide />
-        <TextSetting integration={integration} field="default_model" label="Model" updateIntegration={updateIntegration} />
-      </SettingsSection>
-    );
-  }
-
-  if (integration.kind === "local_runtime") {
-    return (
-      <SettingsSection title="Local runtime">
-        <TextSetting integration={integration} field="base_url" label="Base URL" updateIntegration={updateIntegration} />
-        <TextSetting integration={integration} field="endpoint" label="Endpoint" updateIntegration={updateIntegration} />
-        <TextSetting integration={integration} field="default_model" label="Model" updateIntegration={updateIntegration} />
-        <TextSetting integration={integration} field="default_voice" label="Voice" updateIntegration={updateIntegration} />
-      </SettingsSection>
-    );
-  }
-
-  if (integration.kind === "azure_openai") {
-    return (
-      <>
-        <SettingsSection title="Azure endpoint" status={secretStatus(integration, "api_key")}>
-          <TextSetting integration={integration} field="endpoint" label="Endpoint" updateIntegration={updateIntegration} wide />
-          <SecretSetting integration={integration} field="api_key" label="API key" updateIntegration={updateIntegration} />
-          <TextSetting integration={integration} field="deployment" label="Deployment" updateIntegration={updateIntegration} />
-        </SettingsSection>
-        <SettingsSection title="Models">
-          <TextSetting integration={integration} field="default_realtime_model" label="Realtime model" updateIntegration={updateIntegration} />
-          <TextSetting integration={integration} field="default_model" label="Text model" updateIntegration={updateIntegration} />
-          <TextSetting integration={integration} field="default_voice" label="Voice" updateIntegration={updateIntegration} />
-        </SettingsSection>
-      </>
-    );
-  }
-
-  if (integration.kind === "anthropic") {
-    return (
-      <SettingsSection title="Anthropic" status={secretStatus(integration, "api_key")}>
-        <SecretSetting integration={integration} field="api_key" label="API key" updateIntegration={updateIntegration} />
-        <TextSetting integration={integration} field="default_model" label="Model" updateIntegration={updateIntegration} />
-      </SettingsSection>
-    );
-  }
-
-  if (integration.kind === "aws_bedrock") {
-    return (
-      <>
-        <SettingsSection title="AWS">
-          <TextSetting integration={integration} field="region" label="Region" updateIntegration={updateIntegration} />
-          <TextSetting integration={integration} field="default_model" label="Model" updateIntegration={updateIntegration} />
-        </SettingsSection>
-        <SettingsSection title="Credentials" status={secretStatus(integration, "secret_key")}>
-          <SecretSetting integration={integration} field="access_key_id" label="Access key" updateIntegration={updateIntegration} />
-          <SecretSetting integration={integration} field="secret_key" label="Secret key" updateIntegration={updateIntegration} />
-        </SettingsSection>
+        {integration.kind === "google_cloud_stt" ? (
+          <SettingsSection title="Speech to text">
+            <ModelSetting
+              integration={integration}
+              field="default_stt_model"
+              label="STT model"
+              updateIntegration={updateIntegration}
+              modelOptions={modelOptions}
+              loadModelOptions={loadModelOptions}
+              capability="stt"
+            />
+          </SettingsSection>
+        ) : (
+          <SettingsSection title="Voice">
+            <TextSetting integration={integration} field="default_voice" label="Voice" updateIntegration={updateIntegration} />
+          </SettingsSection>
+        )}
       </>
     );
   }
@@ -4704,7 +4243,7 @@ function voiceReadiness(config, flow) {
     return { ok: false, detail: `${integration.name} is disabled.` };
   }
 
-  const keyStatus = ["gemini", "gemini_cloud", "openai", "openai_cloud"].includes(integration.kind)
+  const keyStatus = ["gemini", "gemini_cloud"].includes(integration.kind)
     ? secretStatus(integration, "api_key")
     : "configured";
   if (keyStatus === "missing") {
