@@ -1,9 +1,9 @@
 name: Pipecat Live Legacy amd64
-version: "0.1.74"
+version: "0.1.80"
 slug: pipecat_live_legacy_amd64
 description: Realtime Pipecat Live assistant for older amd64 CPUs without x86-64-v2 support.
-url: https://github.com/cs-gergely04/pipecat-gemini
-image: ghcr.io/cs-gergely04/pipecat-gemini/pipecat-live-legacy-amd64
+url: https://github.com/cs-gergely04/pipecat-live
+image: ghcr.io/cs-gergely04/pipecat-live/pipecat-live-legacy-amd64
 arch:
   - amd64
 init: false

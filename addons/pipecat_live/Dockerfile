@@ -44,7 +44,7 @@ LABEL \
     io.hass.type="app" \
     io.hass.arch="${BUILD_ARCH}" \
     org.opencontainers.image.title="Pipecat Live" \
-    org.opencontainers.image.source="https://github.com/cs-gergely04/pipecat-gemini"
+    org.opencontainers.image.source="https://github.com/cs-gergely04/pipecat-live"
 
 WORKDIR /
 CMD ["/run.sh"]

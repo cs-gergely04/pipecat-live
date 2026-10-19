@@ -5,8 +5,8 @@
   "codeowners": ["@cs-gergely04"],
   "config_flow": true,
   "dependencies": ["ai_task", "conversation", "frontend", "lovelace", "stt", "tts"],
-  "documentation": "https://github.com/cs-gergely04/pipecat-gemini",
-  "issue_tracker": "https://github.com/cs-gergely04/pipecat-gemini/issues",
+  "documentation": "https://github.com/cs-gergely04/pipecat-live",
+  "issue_tracker": "https://github.com/cs-gergely04/pipecat-live/issues",
   "integration_type": "service",
   "iot_class": "local_push",
   "requirements": []

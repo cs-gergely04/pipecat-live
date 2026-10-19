@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cs-gergely04/pipecat-gemini/main/addons/pipecat_live/logo.png" alt="Pipecat Live" width="320">
+  <img src="https://raw.githubusercontent.com/cs-gergely04/pipecat-live/main/addons/pipecat_live/logo.png" alt="Pipecat Live" width="320">
 </p>
 
 # Pipecat Live

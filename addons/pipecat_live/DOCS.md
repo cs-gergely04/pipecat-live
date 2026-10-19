@@ -228,7 +228,7 @@ reachable from the device, then store the URL in ESPHome `secrets.yaml`.
 
 ```yaml
 external_components:
-  - source: github://cs-gergely04/pipecat-gemini@main
+  - source: github://cs-gergely04/pipecat-live@main
     components: [va_pipecat]
 
 va_pipecat:

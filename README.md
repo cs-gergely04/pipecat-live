@@ -1,21 +1,21 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cs-gergely04/pipecat-gemini/main/addons/pipecat_live/logo.png" alt="Pipecat Live" width="420">
+  <img src="https://raw.githubusercontent.com/cs-gergely04/pipecat-live/main/addons/pipecat_live/logo.png" alt="Pipecat Live" width="420">
 </p>
 
 # Pipecat Live
 
 <p align="center">
-  <a href="https://github.com/cs-gergely04/pipecat-gemini/actions/workflows/ci.yml">
-    <img alt="CI" src="https://github.com/cs-gergely04/pipecat-gemini/actions/workflows/ci.yml/badge.svg?branch=main">
+  <a href="https://github.com/cs-gergely04/pipecat-live/actions/workflows/ci.yml">
+    <img alt="CI" src="https://github.com/cs-gergely04/pipecat-live/actions/workflows/ci.yml/badge.svg?branch=main">
   </a>
-  <a href="https://github.com/cs-gergely04/pipecat-gemini/actions/workflows/publish.yml">
-    <img alt="Publish add-on image" src="https://github.com/cs-gergely04/pipecat-gemini/actions/workflows/publish.yml/badge.svg">
+  <a href="https://github.com/cs-gergely04/pipecat-live/actions/workflows/publish.yml">
+    <img alt="Publish add-on image" src="https://github.com/cs-gergely04/pipecat-live/actions/workflows/publish.yml/badge.svg">
   </a>
-  <a href="https://github.com/cs-gergely04/pipecat-gemini/releases">
-    <img alt="Latest release" src="https://img.shields.io/github/v/release/cs-gergely04/pipecat-gemini?label=release">
+  <a href="https://github.com/cs-gergely04/pipecat-live/releases">
+    <img alt="Latest release" src="https://img.shields.io/github/v/release/cs-gergely04/pipecat-live?label=release">
   </a>
   <a href="LICENSE">
-    <img alt="License" src="https://img.shields.io/github/license/cs-gergely04/pipecat-gemini">
+    <img alt="License" src="https://img.shields.io/github/license/cs-gergely04/pipecat-live">
   </a>
   <a href="https://www.home-assistant.io/">
     <img alt="Home Assistant" src="https://img.shields.io/badge/Home%20Assistant-add--on%20%2B%20integration-41BDF5?logo=homeassistant&logoColor=white">
@@ -79,7 +79,7 @@ and add-on assistant card remain the more responsive realtime experience.
    Store > Repositories**:
 
    ```text
-   https://github.com/cs-gergely04/pipecat-gemini
+   https://github.com/cs-gergely04/pipecat-live
    ```
 
 2. Add the same repository URL to **HACS > Custom repositories** as an
@@ -268,7 +268,7 @@ The repository includes the `va_pipecat` ESPHome external component:
 
 ```yaml
 external_components:
-  - source: github://cs-gergely04/pipecat-gemini@main
+  - source: github://cs-gergely04/pipecat-live@main
     components: [va_pipecat]
 
 api:
