@@ -1,7 +1,7 @@
 {
   "domain": "pipecat_live",
   "name": "Pipecat Live",
-  "version": "0.1.80",
+  "version": "0.1.81",
   "codeowners": ["@cs-gergely04"],
   "config_flow": true,
   "dependencies": ["ai_task", "conversation", "frontend", "lovelace", "stt", "tts"],

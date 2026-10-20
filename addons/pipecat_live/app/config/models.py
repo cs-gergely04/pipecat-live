@@ -18,6 +18,11 @@ from .constants import (
     _is_http_url,
     _validate_id,
 )
+from .defaults import (
+    default_conversation_flow,
+    default_integrations,
+    default_steps,
+)
 
 
 class IntegrationConfig(BaseModel):
@@ -80,11 +85,6 @@ class PipelineStepConfig(BaseModel):
         return _validate_id(value, "Pipeline step id")
 
 
-from .defaults import (  # noqa: E402
-    default_conversation_flow,
-    default_integrations,
-    default_steps,
-)
 
 
 class FlowConfig(BaseModel):

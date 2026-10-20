@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.81
+
+- Fix circular import between `app.config.defaults` and `app.config.models` that prevented the service from starting up.
+
 ## 0.1.80
 
 - Coalesce streaming user and assistant transcript tokens into cumulative

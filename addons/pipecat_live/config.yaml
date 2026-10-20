@@ -1,5 +1,5 @@
 name: Pipecat Live
-version: "0.1.80"
+version: "0.1.81"
 slug: pipecat_live
 description: Realtime Pipecat Live assistant for Home Assistant with Gemini Live, MCP device control and ESP32 satellite support.
 url: https://github.com/cs-gergely04/pipecat-live

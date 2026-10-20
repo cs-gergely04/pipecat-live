@@ -17,14 +17,14 @@ from .constants import (
     _env_int,
     _split_csv,
 )
-from .models import IntegrationConfig, PipelineStepConfig
-
 if TYPE_CHECKING:
-    from .models import RuntimeConfig
+    from .models import IntegrationConfig, PipelineStepConfig, RuntimeConfig
 
 
 def default_integrations() -> list[IntegrationConfig]:
     """Return first-run integrations shown in the UI."""
+
+    from .models import IntegrationConfig
 
     return [
         IntegrationConfig(
@@ -113,6 +113,8 @@ def default_integrations() -> list[IntegrationConfig]:
 
 def default_steps() -> list[PipelineStepConfig]:
     """Return the default visible Pipecat pipeline."""
+
+    from .models import PipelineStepConfig
 
     return [
         PipelineStepConfig(id="transport", kind="transport", label="SmallWebRTC"),
